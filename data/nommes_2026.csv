@@ -1,0 +1,31 @@
+joueur,club,nation,buts_champ,passes_champ,minutes_champ,titre_champ,coupe_nat,ldc_stade,ldc_buts_passes,tournoi,tournoi_stade,tournoi_buts_passes,tournoi_prix,prix_saison,fiabilite,commentaire
+Jude Bellingham,Real Madrid,Angleterre,5,4,1843,0,0,QF,3,Coupe du monde 2026,DF,8,,0,partiel,Stats Liga = instantané FotMob de mai. LDC buts+passes estimés. CDM : 7 buts (confirmé) + 1 passe (estimée)
+Pau Cubarsí,FC Barcelone,Espagne,1,0,2708,1,0,QF,0,Coupe du monde 2026,V,0,autre,0,confirmé,Meilleur jeune joueur de la CDM 2026
+Marc Cucurella,Chelsea,Espagne,1,3,2710,0,0,HF,1,Coupe du monde 2026,V,2,,0,estimation,Buts/passes en championnat et LDC estimés (minutes : Walfoot). CDM : 2 passes (AIScore)
+Ousmane Dembélé,Paris SG,France,10,7,1700,1,0,V,10,Coupe du monde 2026,DF,10,,0,partiel,Ligue 1 : 10 buts 7 passes (The Analyst) ; minutes estimées (22 matchs). LDC estimée. CDM : 6 buts (5 selon Fox) + 4 passes estimées
+Luis Díaz,Bayern Munich,Colombie,15,14,2450,1,1,DF,6,Coupe du monde 2026,HF,2,,0,partiel,LDC et CDM buts+passes estimés. Colombie éliminée en 8e (tirs au but contre la Suisse)
+Bruno Fernandes,Manchester United,Portugal,8,19,2889,0,0,ABS,0,Coupe du monde 2026,HF,2,,0,partiel,19 passes en PL (The Analyst ; 16 selon FotMob). Pas de LDC. CDM estimée
+Gabriel Magalhães,Arsenal,Brésil,3,1,2751,1,0,F,1,Coupe du monde 2026,HF,0,,0,estimation,Minutes : Walfoot. Buts/passes estimés
+Erling Haaland,Manchester City,Norvège,27,6,2900,0,1,HF,9,Coupe du monde 2026,QF,8,,0,partiel,27 buts PL (NBC) ; passes et minutes estimées. City : Cup + League Cup. CDM : 7 buts + 1 passe estimée
+Achraf Hakimi,Paris SG,Maroc,2,2,1400,1,0,V,7,Coupe du monde 2026,QF,2,,0,estimation,Instantané ESPN ; minutes estimées. LDC : 6 passes (UEFA) + 1 but estimé. CDM : 1 but + 1 passe estimée
+Harry Kane,Bayern Munich,Angleterre,36,5,2650,1,1,DF,16,Coupe du monde 2026,DF,7,,1,confirmé,Bilan Bundesliga.com : 36 buts 5 passes en BL ; 14 buts 2 passes en LDC. Minutes estimées (31 matchs). Soulier d'or européen 2026. CDM : 6 buts 1 passe
+Khvicha Kvaratskhelia,Paris SG,Géorgie,4,4,1228,1,0,V,16,Coupe du monde 2026,ABS,0,,1,partiel,Ligue 1 = instantané d'avril. LDC : 10 buts 6 passes + élu joueur de la saison LDC. Géorgie non qualifiée pour la CDM
+Lamine Yamal,FC Barcelone,Espagne,16,11,2268,1,0,QF,7,Coupe du monde 2026,V,1,,0,partiel,Liga : instantané FotMob de fin de saison (14 buts 9 passes sur un instantané plus ancien). LDC estimée. CDM : 1 but 0 passe
+Sadio Mané,Al Nassr,Sénégal,9,6,2045,1,0,ABS,0,Coupe du monde 2026,16F,1,,0,partiel,Al Nassr champion d'Arabie saoudite. CDM : buts+passes estimés. Victoire à la CAN 2025 non comptée (le modèle ne regarde que la CDM)
+Marquinhos,Paris SG,Brésil,0,0,1500,1,0,V,1,Coupe du monde 2026,HF,0,,0,estimation,Minutes et LDC estimées
+Lautaro Martínez,Inter Milan,Argentine,17,6,2050,1,0,P,3,Coupe du monde 2026,F,3,,0,partiel,Inter championne d'Italie ; Lautaro meilleur buteur de Serie A (The Analyst). Inter éliminée en barrages LDC par Bodø/Glimt. CDM : 3 buts (FootballDream)
+Kylian Mbappé,Real Madrid,France,25,5,2604,0,0,QF,16,Coupe du monde 2026,DF,14,soulier_or,0,confirmé,Pichichi (25 buts) ; meilleur buteur LDC (15 buts 1 passe) selon Sofascore. Soulier d'or de la CDM (10 buts) ; 4 passes (instantané Sofascore)
+Nuno Mendes,Paris SG,Portugal,3,3,1300,1,0,V,3,Coupe du monde 2026,HF,0,,0,estimation,Instantané ESPN ; minutes et LDC estimées
+Lionel Messi,Inter Miami,Argentine,29,19,2400,1,0,ABS,0,Coupe du monde 2026,F,12,ballon_argent,0,partiel,Hypothèse : saison de club = MLS 2025 (29 buts 19 passes ; Inter Miami vainqueur de la MLS Cup en déc. 2025). Minutes estimées. CDM : 8 buts 4 passes + Ballon d'argent
+João Neves,Paris SG,Portugal,5,1,1285,1,0,V,2,Coupe du monde 2026,HF,0,,0,partiel,LDC et CDM estimées
+Michael Olise,Bayern Munich,France,11,17,1970,1,1,DF,12,Coupe du monde 2026,DF,7,,0,partiel,BL = instantané FotMob. LDC : 8 passes (UEFA) + 4 buts estimés. CDM : 7 passes selon Fox Sports (5 sur un instantané plus ancien) – sources contradictoires
+Willian Pacho,Paris SG,Équateur,1,0,2500,1,0,V,0,Coupe du monde 2026,16F,0,,0,estimation,Aucune stat trouvée : valeurs estimées. Équateur éliminé en 16e par le Mexique
+Julián Quiñones,Al-Qadsiah,Mexique,24,2,2018,0,0,ABS,0,Coupe du monde 2026,HF,4,,0,partiel,Instantané FotMob. CDM : 4 buts (record mexicain égalé)
+Declan Rice,Arsenal,Angleterre,4,5,2585,1,0,F,3,Coupe du monde 2026,DF,1,,0,partiel,LDC et CDM estimées
+Rodri,Manchester City,Espagne,1,0,1512,0,1,HF,0,Coupe du monde 2026,V,1,ballon_or,0,partiel,Ballon d'or de la CDM 2026 (meilleur joueur). Buts+passes en CDM estimés
+Fabián Ruiz,Paris SG,Espagne,1,3,1012,1,0,V,2,Coupe du monde 2026,V,1,,0,partiel,LDC estimée. CDM : 1 but (AIScore)
+William Saliba,Arsenal,France,1,0,2615,1,0,F,0,Coupe du monde 2026,DF,0,,0,partiel,Minutes : Walfoot (1985 selon FotMob)
+Ferran Torres,FC Barcelone,Espagne,16,1,1863,1,0,QF,3,Coupe du monde 2026,V,2,,0,partiel,But vainqueur en finale de la CDM (106e). LDC estimée
+Dayot Upamecano,Bayern Munich,France,1,1,2300,1,1,DF,0,Coupe du monde 2026,DF,0,,0,estimation,Aucune stat trouvée : valeurs estimées
+Vinícius Júnior,Real Madrid,Brésil,11,5,2183,0,0,QF,13,Coupe du monde 2026,HF,5,,0,partiel,Liga = instantané FotMob. LDC : 8 passes (UEFA) + 5 buts estimés. CDM : 4 buts + 1 passe estimée
+Vitinha,Paris SG,Portugal,1,7,2120,1,0,V,7,Coupe du monde 2026,HF,0,,0,partiel,LDC : instantané UEFA (6 buts 1 passe). CDM estimée

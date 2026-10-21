@@ -1,0 +1,111 @@
+annee,rang,joueur,club,nation,buts_champ,passes_champ,minutes_champ,titre_champ,coupe_nat,ldc_stade,ldc_buts_passes,tournoi,tournoi_stade,tournoi_buts_passes,tournoi_prix,prix_saison
+2003,1,Pavel Nedvěd,Juventus,Tchéquie,9,8,2700,1,0,F,8,,ABS,0,,0
+2003,2,Thierry Henry,Arsenal,France,24,20,3100,0,1,HF,10,,ABS,0,,0
+2003,3,Paolo Maldini,AC Milan,Italie,0,1,2600,0,1,V,0,,ABS,0,,0
+2003,4,Andriy Shevchenko,AC Milan,Ukraine,5,2,1700,0,1,V,5,,ABS,0,,0
+2003,5,Zinédine Zidane,Real Madrid,France,9,8,2700,1,0,DF,5,,ABS,0,,0
+2004,1,Andriy Shevchenko,AC Milan,Ukraine,24,4,2900,1,0,QF,5,Euro 2004,ABS,0,,0
+2004,2,Deco,FC Porto,Portugal,2,10,2700,1,0,V,5,Euro 2004,F,1,,1
+2004,3,Ronaldinho,FC Barcelone,Brésil,15,8,2900,0,0,ABS,0,Copa América 2004,ABS,0,,0
+2004,4,Thierry Henry,Arsenal,France,30,6,3200,1,0,QF,6,Euro 2004,QF,2,,1
+2004,5,Zinédine Zidane,Real Madrid,France,6,8,2900,0,0,QF,3,Euro 2004,QF,3,,0
+2005,1,Ronaldinho,FC Barcelone,Brésil,9,13,3000,1,0,HF,5,,ABS,0,,0
+2005,2,Frank Lampard,Chelsea,Angleterre,13,16,3400,1,1,DF,6,,ABS,0,,0
+2005,3,Steven Gerrard,Liverpool,Angleterre,7,6,2600,0,0,V,6,,ABS,0,,1
+2005,4,Thierry Henry,Arsenal,France,25,14,2800,0,1,HF,6,,ABS,0,,1
+2005,5,Andriy Shevchenko,AC Milan,Ukraine,17,4,2400,0,0,F,7,,ABS,0,,0
+2006,1,Fabio Cannavaro,Juventus,Italie,4,0,3000,0,0,QF,0,Coupe du monde 2006,V,0,ballon_argent,0
+2006,2,Gianluigi Buffon,Juventus,Italie,0,0,2700,0,0,QF,0,Coupe du monde 2006,V,0,autre,0
+2006,3,Thierry Henry,Arsenal,France,27,9,2900,0,0,F,8,Coupe du monde 2006,F,4,,0
+2006,4,Ronaldinho,FC Barcelone,Brésil,17,11,2700,1,0,V,10,Coupe du monde 2006,QF,1,,1
+2006,5,Zinédine Zidane,Real Madrid,France,9,6,2400,0,0,HF,1,Coupe du monde 2006,F,5,ballon_or,0
+2007,1,Kaká,AC Milan,Brésil,8,7,2700,0,0,V,13,,ABS,0,,1
+2007,2,Cristiano Ronaldo,Manchester United,Portugal,17,14,2900,1,0,DF,4,,ABS,0,,0
+2007,3,Lionel Messi,FC Barcelone,Argentine,14,3,2400,0,0,HF,1,,ABS,0,,0
+2007,4,Didier Drogba,Chelsea,Côte d'Ivoire,20,4,3000,0,1,DF,7,,ABS,0,,0
+2007,5,Andrea Pirlo,AC Milan,Italie,2,7,2700,0,0,V,4,,ABS,0,,0
+2008,1,Cristiano Ronaldo,Manchester United,Portugal,31,6,2800,1,0,V,8,Euro 2008,QF,2,,2
+2008,2,Lionel Messi,FC Barcelone,Argentine,10,12,2300,0,0,DF,7,Euro 2008,ABS,0,,0
+2008,3,Fernando Torres,Liverpool,Espagne,24,4,2600,0,0,DF,7,Euro 2008,V,3,,0
+2008,4,Iker Casillas,Real Madrid,Espagne,0,0,3400,1,0,HF,0,Euro 2008,V,0,autre,0
+2008,5,Xavi,FC Barcelone,Espagne,6,9,2700,0,0,DF,1,Euro 2008,V,2,ballon_or,0
+2009,1,Lionel Messi,FC Barcelone,Argentine,23,11,2800,1,1,V,10,,ABS,0,,1
+2009,2,Cristiano Ronaldo,Manchester United,Portugal,18,6,2800,1,1,F,6,,ABS,0,,0
+2009,3,Xavi,FC Barcelone,Espagne,6,20,3000,1,1,V,4,,ABS,0,,0
+2009,4,Andrés Iniesta,FC Barcelone,Espagne,4,9,2000,1,1,V,3,,ABS,0,,0
+2009,5,Samuel Eto'o,FC Barcelone,Cameroun,30,4,3000,1,1,V,6,,ABS,0,,0
+2010,1,Lionel Messi,FC Barcelone,Argentine,34,10,3000,1,0,DF,8,Coupe du monde 2010,QF,1,,1
+2010,2,Andrés Iniesta,FC Barcelone,Espagne,1,4,1700,1,0,DF,1,Coupe du monde 2010,V,3,,0
+2010,3,Xavi,FC Barcelone,Espagne,3,10,2700,1,0,DF,2,Coupe du monde 2010,V,1,,0
+2010,4,Wesley Sneijder,Inter Milan,Pays-Bas,4,9,2200,1,1,V,7,Coupe du monde 2010,F,6,ballon_bronze,0
+2010,5,Diego Forlán,Atlético Madrid,Uruguay,18,5,2900,0,0,P,2,Coupe du monde 2010,DF,6,ballon_or,0
+2011,1,Lionel Messi,FC Barcelone,Argentine,31,18,3000,1,0,V,15,,ABS,0,,1
+2011,2,Cristiano Ronaldo,Real Madrid,Portugal,40,10,2900,0,1,DF,9,,ABS,0,,1
+2011,3,Xavi,FC Barcelone,Espagne,3,10,2500,1,0,V,4,,ABS,0,,0
+2011,4,Andrés Iniesta,FC Barcelone,Espagne,2,8,2300,1,0,V,3,,ABS,0,,0
+2011,5,Wayne Rooney,Manchester United,Angleterre,11,11,2400,1,0,F,3,,ABS,0,,0
+2012,1,Lionel Messi,FC Barcelone,Argentine,50,16,3300,0,1,DF,16,Euro 2012,ABS,0,,1
+2012,2,Cristiano Ronaldo,Real Madrid,Portugal,46,12,3300,1,0,DF,12,Euro 2012,DF,3,,0
+2012,3,Andrés Iniesta,FC Barcelone,Espagne,2,7,2000,0,1,DF,2,Euro 2012,V,1,ballon_or,1
+2012,4,Xavi,FC Barcelone,Espagne,10,9,2800,0,1,DF,2,Euro 2012,V,2,,0
+2012,5,Radamel Falcao,Atlético Madrid,Colombie,24,4,2900,0,0,ABS,0,Euro 2012,ABS,0,,0
+2013,1,Cristiano Ronaldo,Real Madrid,Portugal,34,10,2900,0,0,DF,14,,ABS,0,,0
+2013,2,Lionel Messi,FC Barcelone,Argentine,46,12,2800,1,0,DF,9,,ABS,0,,1
+2013,3,Franck Ribéry,Bayern Munich,France,10,14,2200,1,1,V,7,,ABS,0,,1
+2013,4,Zlatan Ibrahimović,Paris SG,Suède,30,11,3000,1,0,QF,5,,ABS,0,,0
+2013,5,Neymar,Santos / FC Barcelone,Brésil,14,6,2400,0,0,ABS,0,,ABS,0,,0
+2014,1,Cristiano Ronaldo,Real Madrid,Portugal,31,9,2600,0,1,V,17,Coupe du monde 2014,P,1,,2
+2014,2,Lionel Messi,FC Barcelone,Argentine,28,11,2500,0,0,QF,8,Coupe du monde 2014,F,5,ballon_or,0
+2014,3,Manuel Neuer,Bayern Munich,Allemagne,0,0,2900,1,1,DF,0,Coupe du monde 2014,V,0,autre,0
+2014,4,Arjen Robben,Bayern Munich,Pays-Bas,11,10,2100,1,1,DF,5,Coupe du monde 2014,DF,4,ballon_bronze,0
+2014,5,Thomas Müller,Bayern Munich,Allemagne,13,11,2400,1,1,DF,7,Coupe du monde 2014,V,8,autre,0
+2015,1,Lionel Messi,FC Barcelone,Argentine,43,18,3300,1,1,V,16,,ABS,0,,1
+2015,2,Cristiano Ronaldo,Real Madrid,Portugal,48,16,3100,0,0,DF,12,,ABS,0,,1
+2015,3,Neymar,FC Barcelone,Brésil,22,7,2700,1,1,V,13,,ABS,0,,0
+2015,4,Luis Suárez,FC Barcelone,Uruguay,16,16,2300,1,1,V,10,,ABS,0,,0
+2015,5,Robert Lewandowski,Bayern Munich,Pologne,17,6,2400,1,0,DF,9,,ABS,0,,0
+2016,1,Cristiano Ronaldo,Real Madrid,Portugal,35,11,3000,0,0,V,20,Euro 2016,V,6,autre,1
+2016,2,Lionel Messi,FC Barcelone,Argentine,26,16,2700,1,1,QF,7,Copa América 2016,F,9,,0
+2016,3,Antoine Griezmann,Atlético Madrid,France,22,5,3000,0,0,F,9,Euro 2016,F,8,ballon_or,0
+2016,4,Luis Suárez,FC Barcelone,Uruguay,40,16,3200,1,1,QF,9,Copa América 2016,ABS,0,,1
+2016,5,Neymar,FC Barcelone,Brésil,24,12,3000,1,1,QF,5,Copa América 2016,ABS,0,,0
+2017,1,Cristiano Ronaldo,Real Madrid,Portugal,25,6,2500,1,0,V,12,,ABS,0,,1
+2017,2,Lionel Messi,FC Barcelone,Argentine,37,9,3000,0,1,QF,14,,ABS,0,,1
+2017,3,Neymar,FC Barcelone,Brésil,13,11,2700,0,1,QF,8,,ABS,0,,0
+2017,4,Gianluigi Buffon,Juventus,Italie,0,0,2700,1,1,F,0,,ABS,0,,0
+2017,5,Luka Modrić,Real Madrid,Croatie,1,6,2000,1,0,V,2,,ABS,0,,0
+2018,1,Luka Modrić,Real Madrid,Croatie,1,7,2400,0,0,V,2,Coupe du monde 2018,F,3,ballon_or,1
+2018,2,Cristiano Ronaldo,Real Madrid,Portugal,26,5,2400,0,0,V,16,Coupe du monde 2018,HF,4,,0
+2018,3,Antoine Griezmann,Atlético Madrid,France,19,9,2700,0,0,P,3,Coupe du monde 2018,V,6,ballon_bronze,0
+2018,4,Kylian Mbappé,Paris SG,France,13,8,2300,1,1,HF,5,Coupe du monde 2018,V,4,autre,0
+2018,5,Lionel Messi,FC Barcelone,Argentine,34,12,2900,1,1,QF,7,Coupe du monde 2018,HF,3,,1
+2019,1,Lionel Messi,FC Barcelone,Argentine,36,13,2700,1,0,DF,15,,ABS,0,,1
+2019,2,Virgil van Dijk,Liverpool,Pays-Bas,4,2,3400,0,0,V,2,,ABS,0,,1
+2019,3,Cristiano Ronaldo,Juventus,Portugal,21,8,2700,1,0,QF,7,,ABS,0,,0
+2019,4,Sadio Mané,Liverpool,Sénégal,22,1,3100,0,0,V,5,,ABS,0,,0
+2019,5,Mohamed Salah,Liverpool,Égypte,22,8,3200,0,0,V,7,,ABS,0,,0
+2021,1,Lionel Messi,FC Barcelone,Argentine,30,9,3000,0,1,HF,6,Copa América 2021,V,9,ballon_or,0
+2021,2,Robert Lewandowski,Bayern Munich,Pologne,41,7,2500,1,0,QF,6,Euro 2020,P,3,,1
+2021,3,Jorginho,Chelsea,Italie,7,1,2300,0,0,V,1,Euro 2020,V,0,,1
+2021,4,Karim Benzema,Real Madrid,France,23,9,3000,0,0,DF,7,Euro 2020,HF,4,,0
+2021,5,N'Golo Kanté,Chelsea,France,0,2,2000,0,0,V,1,Euro 2020,HF,0,,0
+2022,1,Karim Benzema,Real Madrid,France,27,12,2600,1,0,V,16,,ABS,0,,1
+2022,2,Sadio Mané,Liverpool,Sénégal,16,2,2800,0,1,F,6,,ABS,0,,0
+2022,3,Kevin De Bruyne,Manchester City,Belgique,15,8,2400,1,0,DF,5,,ABS,0,,0
+2022,4,Robert Lewandowski,Bayern Munich,Pologne,35,3,2900,1,0,QF,13,,ABS,0,,1
+2022,5,Mohamed Salah,Liverpool,Égypte,23,13,2800,0,1,F,10,,ABS,0,,0
+2023,1,Lionel Messi,Paris SG,Argentine,16,16,2300,1,0,HF,4,Coupe du monde 2022,V,10,ballon_or,0
+2023,2,Erling Haaland,Manchester City,Norvège,36,8,2800,1,1,V,13,Coupe du monde 2022,ABS,0,,2
+2023,3,Kylian Mbappé,Paris SG,France,29,5,2700,1,0,HF,2,Coupe du monde 2022,F,10,soulier_or,0
+2023,4,Kevin De Bruyne,Manchester City,Belgique,7,16,2400,1,1,V,6,Coupe du monde 2022,P,0,,0
+2023,5,Rodri,Manchester City,Espagne,2,6,3000,1,1,V,2,Coupe du monde 2022,HF,0,,1
+2024,1,Rodri,Manchester City,Espagne,8,9,2900,1,0,QF,2,Euro 2024,V,1,ballon_or,0
+2024,2,Vinícius Júnior,Real Madrid,Brésil,15,5,2300,1,0,V,11,Copa América 2024,QF,2,,1
+2024,3,Jude Bellingham,Real Madrid,Angleterre,19,6,2500,1,0,V,7,Euro 2024,F,3,,0
+2024,4,Dani Carvajal,Real Madrid,Espagne,4,3,2300,1,0,V,2,Euro 2024,V,1,,0
+2024,5,Lautaro Martínez,Inter Milan,Argentine,24,3,2600,1,0,HF,2,Copa América 2024,V,5,soulier_or,0
+2025,1,Ousmane Dembélé,Paris SG,France,21,6,2100,1,1,V,14,,ABS,0,,1
+2025,2,Lamine Yamal,FC Barcelone,Espagne,9,13,2800,1,1,DF,10,,ABS,0,,0
+2025,3,Vitinha,Paris SG,Portugal,6,4,2600,1,1,V,3,,ABS,0,,0
+2025,4,Mohamed Salah,Liverpool,Égypte,29,18,3300,1,0,HF,7,,ABS,0,,0
+2025,5,Raphinha,FC Barcelone,Brésil,18,9,2800,1,1,DF,22,,ABS,0,,0
