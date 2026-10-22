@@ -1,0 +1,58 @@
+# Récupère les données, lance le modèle et publie la page sur GitHub Pages.
+name: Construire et publier la page
+
+on:
+  push:
+    branches: [main]        # à chaque modification sur main (ex. config/poids.yaml)
+  pull_request:             # sur une pull request : on construit seulement (pas de publication)
+  workflow_dispatch:        # bouton « Run workflow » dans l'onglet Actions
+  schedule:
+    - cron: "17 6 * * *"    # chaque jour vers 8 h (heure de Paris) : nouvelle vérification Wikipédia
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: page-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code du dépôt
+        uses: actions/checkout@v5
+
+      - name: Installer Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Récupérer les données
+        run: python src/fetch_data.py
+
+      - name: Lancer le modèle et construire la page
+        run: python src/build.py
+
+      - name: Préparer la page pour GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  publier:
+    # On ne publie que depuis la branche main (pas depuis une pull request).
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Publier sur GitHub Pages
+        id: deploiement
+        uses: actions/deploy-pages@v4
