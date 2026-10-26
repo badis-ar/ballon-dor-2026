@@ -84,6 +84,7 @@ def main():
     valeurs = {j["joueur"]: valeurs[j["joueur"]] for j in nommes}
     modele.completer_absents(valeurs)
     modele.corriger_niveau(valeurs, correction)
+    modele.noter_maximums(valeurs)
 
     resultats = {m: appliquer(nommes, valeurs, m, poids_config[m], temperature) for m in modele.METHODES}
     res, dispo, poids = resultats[methode]

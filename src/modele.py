@@ -48,6 +48,19 @@ def corriger_niveau(valeurs, correction):
                 v[d + "_corr"] = v[d] * v["champ_niveau"] / meilleure
 
 
+def noter_maximums(valeurs):
+    """Ajoute à chaque joueur le meilleur total parmi les nommés (buts, passes, buts+passes par 90 min),
+    si la donnée est connue pour tous. Les stats de la saison sont rapportées à ce meilleur total, sans plafond."""
+    for nom, calcul, besoins in (("buts", buts_saison, ["champ_buts_corr", "ldc_buts"]),
+                                 ("passes", passes_saison, ["champ_passes_corr", "ldc_passes"]),
+                                 ("ga_90", ga_par_90, ["champ_buts_corr", "ldc_buts", "champ_passes_corr",
+                                                       "ldc_passes", "champ_minutes", "ldc_minutes"])):
+        if all(all(b in v for b in besoins) for v in valeurs.values()):
+            meilleur = max(calcul(v) for v in valeurs.values())
+            for v in valeurs.values():
+                v["max_" + nom] = meilleur
+
+
 def buts_saison(v):
     return v["champ_buts_corr"] + v["ldc_buts"]
 
@@ -66,11 +79,10 @@ def ga_par_90(v):
 METHODES = {
     "chiffres": {
         "stats_saison": {
-            "buts": (0.40, ["champ_buts_corr", "ldc_buts"], lambda v: plafonner(buts_saison(v), 40)),
-            "passes": (0.30, ["champ_passes_corr", "ldc_passes"], lambda v: plafonner(passes_saison(v), 20)),
-            "ga_90": (0.30, ["champ_buts_corr", "ldc_buts", "champ_passes_corr", "ldc_passes",
-                             "champ_minutes", "ldc_minutes"],
-                      lambda v: plafonner(ga_par_90(v), 1.2)),
+            # Pas de plafond : chaque total est rapporté au meilleur des nommés.
+            "buts": (0.40, ["max_buts"], lambda v: buts_saison(v) / v["max_buts"]),
+            "passes": (0.30, ["max_passes"], lambda v: passes_saison(v) / v["max_passes"]),
+            "ga_90": (0.30, ["max_ga_90"], lambda v: ga_par_90(v) / v["max_ga_90"]),
             # Aucune source réutilisable : toujours écarté, affiché pour mémoire.
             "notes_match": (0.20, ["note_match"], lambda v: v["note_match"]),
         },
