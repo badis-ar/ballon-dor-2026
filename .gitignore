@@ -1,3 +1,3 @@
-# Page générée par src/build.py (publiée par la GitHub Action, pas besoin de la stocker)
+# Généré par src/preparation.py et src/construire.py, publié par l'Action
 site/
 __pycache__/

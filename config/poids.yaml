@@ -1,15 +1,31 @@
-# Poids des critères du modèle (en %). Une ligne = un critère.
-# Modifiez un chiffre directement sur GitHub (icône crayon), validez :
-# la page se régénère toute seule en 1 à 2 minutes.
-#
-# Règles :
-# - Les poids n'ont pas besoin de faire exactement 100 : ils sont remis à l'échelle.
-# - Mettre 0 désactive un critère.
-# - « notes_match » est ignoré tant qu'il n'existe pas de source gratuite et fiable :
-#   son poids est redistribué entre les autres critères.
+# Réglages du modèle. Modifiez un chiffre sur GitHub (icône crayon) puis validez :
+# la page se reconstruit en une ou deux minutes.
 
-coupe_du_monde: 35     # Parcours de l'équipe à la CDM 2026, buts + passes, prix individuels
-saison_club: 30        # Buts + passes par 90 min, minutes jouées, titres nationaux
-ligue_des_champions: 20  # Parcours du club en LDC, buts + passes en LDC
-notes_match: 10        # Notes moyennes des matchs (désactivé : pas de source gratuite fiable)
-prestige: 5            # Podiums passés au Ballon d'or + grands prix individuels de la saison
+# Méthode affichée en premier : « chiffres » ou « criteres ».
+# L'autre est calculée aussi et affichée pour comparaison.
+methode: chiffres
+
+# Écart entre les probabilités : plus la valeur est petite, plus le premier se détache.
+# Réglée à la main, pas encore calibrée sur les éditions passées.
+temperature: 5
+
+# Buts et passes de championnat multipliés par le niveau du championnat (note Opta Power Rankings,
+# fichier data/opta/niveau_championnats.csv) divisé par la meilleure note. true ou false.
+correction_niveau: true
+
+# Poids des critères (remis à l'échelle, le total n'a pas besoin de faire 100 ; 0 retire un critère).
+
+# Méthode « chiffres » : statistiques individuelles d'abord.
+chiffres:
+  stats_saison: 40      # buts, passes, buts+passes par 90 min (championnat + LDC réunis)
+  cdm_individuel: 25    # buts, passes et prix individuels à la Coupe du monde
+  cdm_parcours: 15      # parcours de la sélection à la Coupe du monde
+  titres_club: 15       # champion, coupe nationale, parcours en LDC
+  prestige: 5           # podiums des éditions précédentes
+
+# Méthode « criteres » : un critère par compétition.
+criteres:
+  coupe_du_monde: 35
+  saison_club: 30
+  ligue_des_champions: 20
+  prestige: 5
