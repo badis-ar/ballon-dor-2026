@@ -61,7 +61,7 @@ SAISONS_CLUBS = {
     "saison_arsenal_2025-26": "2025–26 Arsenal F.C. season",
     "saison_manchester_city_2025-26": "2025–26 Manchester City F.C. season",
     "saison_inter_2025-26": "2025–26 Inter Milan season",
-    "saison_al_nassr_2025-26": "2025–26 Al Nassr FC season",
+    "saison_al_nassr_2025-26": "2025–26 Al-Nassr FC season",
     "saison_al_qadsiah_2025-26": "2025–26 Al-Qadsiah FC season",
     "saison_inter_miami_2025": "2025 Inter Miami CF season",
 }
