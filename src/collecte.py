@@ -50,6 +50,22 @@ for annee in range(1996, 2026):
     if annee != 2020:
         PAGES_WIKIPEDIA[f"ballon_dor_{annee}"] = f"{annee} Ballon d'Or"
 
+# Saisons des clubs des nommés (buteurs et passeurs par compétition, coupes et supercoupes comprises).
+SAISONS_CLUBS = {
+    "saison_real_madrid_2025-26": "2025–26 Real Madrid CF season",
+    "saison_barcelone_2025-26": "2025–26 FC Barcelona season",
+    "saison_chelsea_2025-26": "2025–26 Chelsea F.C. season",
+    "saison_psg_2025-26": "2025–26 Paris Saint-Germain FC season",
+    "saison_bayern_2025-26": "2025–26 FC Bayern Munich season",
+    "saison_manchester_united_2025-26": "2025–26 Manchester United F.C. season",
+    "saison_arsenal_2025-26": "2025–26 Arsenal F.C. season",
+    "saison_manchester_city_2025-26": "2025–26 Manchester City F.C. season",
+    "saison_inter_2025-26": "2025–26 Inter Milan season",
+    "saison_al_nassr_2025-26": "2025–26 Al Nassr FC season",
+    "saison_al_qadsiah_2025-26": "2025–26 Al-Qadsiah FC season",
+    "saison_inter_miami_2025": "2025 Inter Miami CF season",
+}
+
 # Autres fichiers : nom local -> URL.
 FICHIERS = {
     "openfootball/cdm_2026.json": f"{OPENFOOTBALL}/worldcup.json/master/2026/worldcup.json",
@@ -73,9 +89,12 @@ def telecharger(url):
 
 
 def main():
+    """Sans argument : tout. Avec « saisons » : seulement les pages de saison des clubs."""
     DOSSIER.mkdir(parents=True, exist_ok=True)
-    taches = [(f"wikipedia/{nom}.json", url_wikipedia(titre)) for nom, titre in PAGES_WIKIPEDIA.items()]
-    taches += list(FICHIERS.items())
+    taches = [(f"wikipedia/{nom}.json", url_wikipedia(titre)) for nom, titre in SAISONS_CLUBS.items()]
+    if sys.argv[1:] != ["saisons"]:
+        taches += [(f"wikipedia/{nom}.json", url_wikipedia(titre)) for nom, titre in PAGES_WIKIPEDIA.items()]
+        taches += list(FICHIERS.items())
 
     lignes, echecs = [], []
     for nom, url in taches:

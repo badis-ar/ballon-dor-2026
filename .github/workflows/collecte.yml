@@ -5,6 +5,10 @@ name: Collecter les données
 
 on:
   workflow_dispatch:
+    inputs:
+      partie:
+        description: "« tout », ou « saisons » pour les seules pages de saison des clubs"
+        default: tout
 
 permissions:
   contents: write
@@ -18,7 +22,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Télécharger
-        run: python src/collecte.py
+        run: python src/collecte.py ${{ inputs.partie == 'saisons' && 'saisons' || '' }}
       - name: Enregistrer dans le dépôt
         run: |
           git config user.name "github-actions[bot]"
