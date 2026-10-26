@@ -314,11 +314,21 @@ def main():
         club = club_ldc(j["club"], ldc)
         ajouter(j["joueur"], "ldc_stade", ldc[club] if club else "ABS", "openfootball", URL_OPENFOOTBALL_LDC)
 
+    # Niveau des championnats (Opta Power Rankings, relevé à la main), s'il a été déposé
+    niveaux = {}
+    fichier_niveaux = BRUT / "opta" / "niveau_championnats.csv"
+    if fichier_niveaux.exists():
+        with open(fichier_niveaux, encoding="utf-8") as f:
+            niveaux = {l["fichier_championnat"]: l for l in csv.DictReader(f)}
+
     # Titres nationaux
     for j in liste:
         championnat = championnat_du_club(j["club_page"])
         if not championnat:
             continue
+        if championnat in niveaux:
+            n = niveaux[championnat]
+            ajouter(j["joueur"], "champ_niveau", n["note"], n["source"], n["url"], n["championnat"])
         gagnant, url = vainqueur(championnat)
         if gagnant:
             ajouter(j["joueur"], "champ_titre", int(cle_club(gagnant) == cle_club(j["club_page"])), "Wikipédia", url)

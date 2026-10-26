@@ -9,6 +9,10 @@ methode: chiffres
 # Réglée à la main, pas encore calibrée sur les éditions passées.
 temperature: 5
 
+# Buts et passes de championnat multipliés par le niveau du championnat (note Opta Power Rankings,
+# fichier data/opta/niveau_championnats.csv) divisé par la meilleure note. true ou false.
+correction_niveau: false
+
 # Poids des critères (remis à l'échelle, le total n'a pas besoin de faire 100 ; 0 retire un critère).
 
 # Méthode « chiffres » : statistiques individuelles d'abord.

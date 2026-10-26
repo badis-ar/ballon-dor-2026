@@ -43,6 +43,7 @@ COLONNES = [
     ("champ_buts", "Buts", "Championnat", str),
     ("champ_passes", "Passes", "Championnat", str),
     ("champ_minutes", "Minutes", "Championnat", lambda v: f"{v:,}".replace(",", " ")),
+    ("champ_niveau", "Niveau Opta", "Championnat", lambda v: str(v).replace(".", ",")),
     ("podiums_points", "Points", "Ballon d'or", str),
 ]
 
@@ -254,7 +255,24 @@ footer { color: var(--texte-3); font-size: .85rem; border-top: 1px solid var(--b
 """
 
 
-def generer(joueurs, valeurs, sources, methode, methodes, temperature, cotes, historique, provenance):
+def bloc_correction(correction, valeurs, sources):
+    """Phrase sur la correction des buts et passes de championnat par le niveau du championnat."""
+    if not correction:
+        return ("Les buts et passes de championnat comptent de la même façon quel que soit le championnat "
+                "(méthode « statistiques individuelles »).")
+    niveaux = {}
+    for j, s in sources.items():
+        if "champ_niveau" in s:
+            niveaux[s["champ_niveau"]["detail"]] = s["champ_niveau"]
+    liste = ", ".join(f"{nom} {str(l['valeur']).replace('.', ',')}" for nom, l in
+                      sorted(niveaux.items(), key=lambda x: -float(x[1]["valeur"])))
+    url = next(iter(niveaux.values()))["url"] if niveaux else ""
+    return (f"Dans la méthode « statistiques individuelles », les buts et passes de championnat sont multipliés "
+            f"par la note du championnat divisée par la meilleure note (<a href=\"{escape(url)}\">Opta Power Rankings</a> : "
+            f"{escape(liste)}). Les buts et passes en LDC et à la Coupe du monde ne sont pas corrigés.")
+
+
+def generer(joueurs, valeurs, sources, methode, methodes, temperature, correction, cotes, historique, provenance):
     from modele import METHODES
     autre = next(m for m in methodes if m != methode)
     dates = sorted(p["telecharge_le"] for p in provenance)
@@ -310,6 +328,7 @@ def generer(joueurs, valeurs, sources, methode, methodes, temperature, cotes, hi
       joueur est écarté pour tous, et son poids est réparti entre les autres éléments du même critère.
       Les notes sont ensuite converties en probabilités (fonction softmax, température {str(temperature).replace(".", ",")}).
       La température est réglée à la main : elle n'est pas encore calibrée sur les éditions passées.</p>
+    <p>{bloc_correction(correction, valeurs, sources)}</p>
     <h3>Méthode {TXT_METHODE[methode]} (classement principal)</h3>
     <div class="cadre">{bloc_methode(methode, methodes[methode])}</div>
     <h3>Méthode {TXT_METHODE[autre]} (comparaison)</h3>

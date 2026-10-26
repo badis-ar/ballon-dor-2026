@@ -18,7 +18,7 @@ RACINE = Path(__file__).resolve().parent.parent
 DONNEES = RACINE / "site" / "donnees"
 SITE = RACINE / "site"
 NUMERIQUES = {"cdm_buts", "cdm_passes", "cdm_minutes", "ldc_buts", "ldc_passes", "ldc_minutes",
-              "champ_buts", "champ_passes", "champ_minutes", "champ_titre", "coupe_nat", "podiums_points"}
+              "champ_buts", "champ_passes", "champ_minutes", "champ_titre", "coupe_nat", "podiums_points", "champ_niveau"}
 
 
 def erreur(message):
@@ -50,7 +50,10 @@ def lire_config():
                        f"(possibles : {', '.join(criteres)}).")
             if not isinstance(valeur, (int, float)) or valeur < 0:
                 erreur(f"config/poids.yaml : le poids de « {critere} » doit être un nombre positif.")
-    return methode, poids, temperature
+    correction = config.get("correction_niveau", False)
+    if not isinstance(correction, bool):
+        erreur("config/poids.yaml : « correction_niveau » doit valoir true ou false.")
+    return methode, poids, temperature, correction
 
 
 def appliquer(nommes, valeurs, methode, poids_config, temperature):
@@ -68,7 +71,7 @@ def appliquer(nommes, valeurs, methode, poids_config, temperature):
 
 
 def main():
-    methode, poids_config, temperature = lire_config()
+    methode, poids_config, temperature, correction = lire_config()
     autre = next(m for m in modele.METHODES if m != methode)
     nommes = lire_csv("nommes_2026.csv")
 
@@ -76,10 +79,11 @@ def main():
     valeurs, sources = defaultdict(dict), defaultdict(dict)
     for ligne in lire_csv("valeurs_2026.csv"):
         v = ligne["valeur"]
-        valeurs[ligne["joueur"]][ligne["donnee"]] = int(v) if ligne["donnee"] in NUMERIQUES else v
+        valeurs[ligne["joueur"]][ligne["donnee"]] = (float(v) if "." in v else int(v)) if ligne["donnee"] in NUMERIQUES else v
         sources[ligne["joueur"]][ligne["donnee"]] = ligne
     valeurs = {j["joueur"]: valeurs[j["joueur"]] for j in nommes}
     modele.completer_absents(valeurs)
+    modele.corriger_niveau(valeurs, correction)
 
     resultats = {m: appliquer(nommes, valeurs, m, poids_config[m], temperature) for m in modele.METHODES}
     res, dispo, poids = resultats[methode]
@@ -96,7 +100,7 @@ def main():
 
     SITE.mkdir(exist_ok=True)
     methodes = {m: {"dispo": r[1], "poids": r[2], "poids_config": poids_config[m]} for m, r in resultats.items()}
-    html = page.generer(nommes, valeurs, sources, methode, methodes, temperature,
+    html = page.generer(nommes, valeurs, sources, methode, methodes, temperature, correction,
                         cotes, lire_csv("historique.csv"), provenance)
     (SITE / "index.html").write_text(html, encoding="utf-8")
 

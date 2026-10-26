@@ -29,12 +29,31 @@ def plafonner(valeur, plafond):
     return max(0.0, min(valeur / plafond, 1.0))
 
 
+def corriger_niveau(valeurs, correction):
+    """Buts et passes de championnat pondérés par le niveau du championnat.
+
+    Coefficient = note Opta du championnat / meilleure note parmi les championnats des nommés.
+    Sans correction, les valeurs sont reprises telles quelles. Avec correction, un joueur dont le
+    championnat n'a pas de note n'a pas de valeur corrigée (l'élément sera écarté, rien n'est estimé).
+    """
+    notes = [v["champ_niveau"] for v in valeurs.values() if "champ_niveau" in v]
+    meilleure = max(notes) if notes else None
+    for v in valeurs.values():
+        for d in ("champ_buts", "champ_passes"):
+            if d not in v:
+                continue
+            if not correction:
+                v[d + "_corr"] = v[d]
+            elif "champ_niveau" in v:
+                v[d + "_corr"] = v[d] * v["champ_niveau"] / meilleure
+
+
 def buts_saison(v):
-    return v["champ_buts"] + v["ldc_buts"]
+    return v["champ_buts_corr"] + v["ldc_buts"]
 
 
 def passes_saison(v):
-    return v["champ_passes"] + v["ldc_passes"]
+    return v["champ_passes_corr"] + v["ldc_passes"]
 
 
 def ga_par_90(v):
@@ -47,9 +66,10 @@ def ga_par_90(v):
 METHODES = {
     "chiffres": {
         "stats_saison": {
-            "buts": (0.40, ["champ_buts", "ldc_buts"], lambda v: plafonner(buts_saison(v), 40)),
-            "passes": (0.30, ["champ_passes", "ldc_passes"], lambda v: plafonner(passes_saison(v), 20)),
-            "ga_90": (0.30, ["champ_buts", "ldc_buts", "champ_passes", "ldc_passes", "champ_minutes", "ldc_minutes"],
+            "buts": (0.40, ["champ_buts_corr", "ldc_buts"], lambda v: plafonner(buts_saison(v), 40)),
+            "passes": (0.30, ["champ_passes_corr", "ldc_passes"], lambda v: plafonner(passes_saison(v), 20)),
+            "ga_90": (0.30, ["champ_buts_corr", "ldc_buts", "champ_passes_corr", "ldc_passes",
+                             "champ_minutes", "ldc_minutes"],
                       lambda v: plafonner(ga_par_90(v), 1.2)),
             # Aucune source réutilisable : toujours écarté, affiché pour mémoire.
             "notes_match": (0.20, ["note_match"], lambda v: v["note_match"]),
