@@ -1,6 +1,7 @@
 fichier,url,telecharge_le,sha256
 cotes/kalshi.json,https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXBALLONDOR&limit=200,2026-10-26T07:03:26Z,d75bf3a89c2f3ef5a449dd3176babafb0ba08b34343d07813a590a3d78912791
 cotes/polymarket.json,https://gamma-api.polymarket.com/events?slug=ballon-dor-winner-2026,2026-10-26T07:03:26Z,c38a33576607bf6ca8d3622da44dbe8dfe6121a84663bac72ecd1bbfaccb8230
+fbref/fbref_ligues_2025-26.csv,https://fbref.com/en/comps/Big5/2025-2026/stats/players/2025-2026-Big-5-European-Leagues-Stats,2026-10-26T07:22:24Z,9e22f086d68dbfa9e7b1a25414856da8da5f254c8d0123240dc5ed6f4a815463
 openfootball/cdm_2026.json,https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json,2026-10-26T07:03:25Z,0ae2c18109b5aa86bc11928b43586ca430c234804d5bbf808d2c3bf2051ecfca
 openfootball/ldc_2025-26.txt,https://raw.githubusercontent.com/openfootball/champions-league/master/2025-26/cl.txt,2026-10-26T07:03:25Z,2b1877308587ff1004c21b8e961b9050b8754f968244e0635eb005040fd9d5cb
 wikipedia/allemagne_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+Bundesliga&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:02:58Z,0468161ca972ba0f42ee2e9594f5f40c15045563f3b1024f3752fc6396fd70cc

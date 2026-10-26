@@ -274,6 +274,17 @@ def lire_fbref(chemin):
     return sortie
 
 
+def lignes_fbref_du_joueur(nom, lignes):
+    """Lignes FBref d'un joueur : même nom, sinon un seul joueur dont le nom complet commence
+    par celui-ci (« Fabián Ruiz » -> « Fabián Ruiz Peña »). Plusieurs lignes = changement de club."""
+    cle = wt.sans_accents(nom)
+    exactes = [l for l in lignes if wt.sans_accents(l["joueur"]) == cle]
+    if exactes:
+        return exactes
+    debut = [l for l in lignes if wt.sans_accents(l["joueur"]).startswith(cle + " ")]
+    return debut if len({l["joueur"] for l in debut}) == 1 else []
+
+
 # --- Assemblage ------------------------------------------------------------------
 
 def main():
@@ -334,7 +345,7 @@ def main():
         lignes = lire_fbref(chemin)
         prefixes_deposes.add(prefixe)
         for j in liste:
-            trouves = [l for l in lignes if wt.sans_accents(l["joueur"]) == wt.sans_accents(j["joueur"])]
+            trouves = lignes_fbref_du_joueur(j["joueur"], lignes)
             if not trouves:
                 continue
             trouves_fbref.add((prefixe, j["joueur"]))
