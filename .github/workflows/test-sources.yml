@@ -1,0 +1,56 @@
+# Diagnostic temporaire : quels sites de données répondent depuis un serveur GitHub ?
+name: Tester les sources de données
+
+on:
+  push:
+    branches: [test-sources]
+
+permissions:
+  contents: write
+
+jobs:
+  tester:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Tester chaque site
+        run: |
+          UA="ballon-dor-2026/1.0 (projet personnel ; https://github.com/badis-ar/ballon-dor-2026)"
+          BR="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
+          out=resultats_test_sources.txt
+          : > $out
+          while read -r nom url; do
+            [ -z "$nom" ] && continue
+            r=$(curl -s -L -o body.tmp -m 25 -A "$BR" -w "%{http_code} %{size_download}" "$url" || echo "ERR 0")
+            debut=$(head -c 160 body.tmp 2>/dev/null | tr '\n\r\t' '   ')
+            echo "$nom | $r | $url | $debut" >> $out
+          done <<'LISTE'
+          fbref_big5 https://fbref.com/en/comps/Big5/stats/players/Big-5-European-Leagues-Stats
+          fbref_joueur https://fbref.com/en/players/7e2b5f8b/Ousmane-Dembele
+          transfermarkt https://www.transfermarkt.com/ousmane-dembele/leistungsdaten/spieler/288230
+          wikipedia_api https://en.wikipedia.org/w/api.php?action=parse&page=2025_Ballon_d%27Or&prop=wikitext&format=json&formatversion=2
+          wikidata_sparql https://query.wikidata.org/sparql?query=SELECT%201%20WHERE%20%7B%7D&format=json
+          kaggle_api https://www.kaggle.com/api/v1/datasets/list?search=ballon
+          footballdata_org https://api.football-data.org/v4/competitions/CL/scorers
+          footballdata_couk https://www.football-data.co.uk/mmz4281/2526/F1.csv
+          apifootball https://v3.football.api-sports.io/status
+          understat https://understat.com/league/Ligue_1/2025
+          fotmob_api https://www.fotmob.com/api/playerData?id=1112206
+          sofascore_api https://api.sofascore.com/api/v1/player/321702
+          uefa_compstats https://compstats.uefa.com/v1/player-ranking?competitionId=1&limit=5
+          worldfootball https://www.worldfootball.net/player_summary/ousmane-dembele/
+          espn_api https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/teams
+          polymarket_api https://gamma-api.polymarket.com/events?slug=ballon-dor-winner-2026
+          kalshi_api https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXBALLONDOR&limit=5
+          oddschecker https://www.oddschecker.com/football/ballon-d-or
+          theoddsapi https://api.the-odds-api.com/v4/sports
+          openfootball https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json
+          LISTE
+          cat $out
+      - name: Enregistrer le résultat sur la branche
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add resultats_test_sources.txt
+          git commit -m "Résultat du test des sources"
+          git push
