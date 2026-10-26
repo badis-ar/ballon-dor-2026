@@ -248,8 +248,7 @@ def generer(joueurs, valeurs, sources, dispo, poids_config, poids, temperature, 
     if ecartes:
         note_ecartes = (f'<p class="note">Données incomplètes. Ces éléments ne sont pas encore disponibles pour les '
                         f'30 joueurs et ne comptent pour personne : {escape(", ".join(ecartes))}. '
-                        f'Ils viendront des tableaux FBref. En attendant, le classement repose surtout sur les résultats '
-                        f'collectifs (parcours, titres) et les prix.</p>')
+                        f'Ils viendront des tableaux FBref.</p>')
     j1 = joueurs[0]
     return f"""<!doctype html>
 <html lang="fr">

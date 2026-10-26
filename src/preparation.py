@@ -350,6 +350,8 @@ def main():
                 continue
             trouves_fbref.add((prefixe, j["joueur"]))
             for donnee in ("buts", "passes", "minutes"):
+                if prefixe == "cdm" and donnee == "buts":
+                    continue  # déjà lus dans openfootball (les deux sources concordent)
                 total = sum(int(l[donnee] or 0) for l in trouves)
                 ajouter(j["joueur"], f"{prefixe}_{donnee}", total, f"FBref ({fichier})", URL_FBREF[fichier])
 
@@ -373,6 +375,10 @@ def main():
         c["joueur"] = next((j["joueur"] for j in liste if meme_joueur(j["joueur"], c["joueur"])), None)
     cotes = [c for c in cotes if c["joueur"]]
 
+    def stade_de(joueur, prefixe):
+        """Parcours dans la compétition (ABS = équipe absente, rien à chercher dans FBref)."""
+        return next((v["valeur"] for v in valeurs if v["joueur"] == joueur and v["donnee"] == f"{prefixe}_stade"), None)
+
     # Écriture
     ecrire("nommes_2026.csv", [{k: j[k] for k in ("joueur", "nation", "poste", "club", "source")} for j in liste])
     ecrire("valeurs_2026.csv", valeurs)
@@ -383,7 +389,8 @@ def main():
         "fbref_deposes": sorted(f for f in FICHIERS_FBREF if (BRUT / "fbref" / f).exists()),
         # Joueurs absents de tous les fichiers déposés pour une compétition (ex. aucun fichier
         # de championnat ne contient ce nom) : à vérifier, l'orthographe peut différer.
-        "fbref_joueurs_non_trouves": {p: [j["joueur"] for j in liste if (p, j["joueur"]) not in trouves_fbref]
+        "fbref_joueurs_non_trouves": {p: [j["joueur"] for j in liste if (p, j["joueur"]) not in trouves_fbref
+                                          and stade_de(j["joueur"], p) != "ABS"]
                                       for p in sorted(prefixes_deposes)},
         "editions_historique": sorted({h["annee"] for h in histo}),
     }, ensure_ascii=False, indent=2), encoding="utf-8")
