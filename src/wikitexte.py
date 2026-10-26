@@ -3,6 +3,7 @@
 import json
 import re
 import unicodedata
+import urllib.parse
 from pathlib import Path
 
 
@@ -19,7 +20,7 @@ def lire_page(chemin):
 
 
 def url_page(titre):
-    return "https://en.wikipedia.org/wiki/" + titre.replace(" ", "_")
+    return "https://en.wikipedia.org/wiki/" + urllib.parse.quote(titre.replace(" ", "_"), safe="()_,'")
 
 
 def _decouper(texte, separateur):

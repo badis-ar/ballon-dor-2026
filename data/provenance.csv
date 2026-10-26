@@ -1,12 +1,7 @@
 fichier,url,telecharge_le,sha256
 cotes/kalshi.json,https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXBALLONDOR&limit=200,2026-10-26T07:03:26Z,d75bf3a89c2f3ef5a449dd3176babafb0ba08b34343d07813a590a3d78912791
 cotes/polymarket.json,https://gamma-api.polymarket.com/events?slug=ballon-dor-winner-2026,2026-10-26T07:03:26Z,c38a33576607bf6ca8d3622da44dbe8dfe6121a84663bac72ecd1bbfaccb8230
-openfootball/allemagne_2025-26.json,https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/de.1.json,2026-10-26T07:03:25Z,17d0999db6281e6365823acdbce41a4f01dd469eac63e1f897e4e47c02906672
-openfootball/angleterre_2025-26.json,https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/en.1.json,2026-10-26T07:03:25Z,d6070bdf731546ccf97767f062e8af4bd26dd309dee69f6092025bf9c78f43c1
 openfootball/cdm_2026.json,https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json,2026-10-26T07:03:25Z,0ae2c18109b5aa86bc11928b43586ca430c234804d5bbf808d2c3bf2051ecfca
-openfootball/espagne_2025-26.json,https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/es.1.json,2026-10-26T07:03:25Z,b40397d8e62c640138548d57a1a9f76150549213d2a07fcbbb90ed0eabc6ccea
-openfootball/france_2025-26.json,https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/fr.1.json,2026-10-26T07:03:26Z,3e9403445dd96f4bb7f740de22d4ea7e3ea7d640777a12eab621ae4d4dbf3bc7
-openfootball/italie_2025-26.json,https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/it.1.json,2026-10-26T07:03:25Z,28f7773dea86345aeb0cbb4aff2f90231033f7ed855219e70fdd1cf45d4d7e7f
 openfootball/ldc_2025-26.txt,https://raw.githubusercontent.com/openfootball/champions-league/master/2025-26/cl.txt,2026-10-26T07:03:25Z,2b1877308587ff1004c21b8e961b9050b8754f968244e0635eb005040fd9d5cb
 wikipedia/allemagne_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+Bundesliga&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:02:58Z,0468161ca972ba0f42ee2e9594f5f40c15045563f3b1024f3752fc6396fd70cc
 wikipedia/angleterre_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+Premier+League&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:02:57Z,20d4d96e66634ca0c1a748def28b1d0d2d839e95a45aad8986ae76d08d75f08e
@@ -52,5 +47,4 @@ wikipedia/coupe_usa_2025.json,https://en.wikipedia.org/w/api.php?action=parse&pa
 wikipedia/espagne_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+La+Liga&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:02:58Z,72d4afabeef0b4c39feefcc633e5704a08d7b91569e77901723612e56da05589
 wikipedia/france_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+Ligue+1&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:03:00Z,aec81545d76d82ede6aa1938b3b8d9b94e43609f3021c43bbbc3e083dfdc4785
 wikipedia/italie_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+Serie+A&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:02:59Z,574862929ffe73f372e24784fcd8f6db0ff91d5bb1aac325cd4d30a5d7a1c925
-wikipedia/ldc_2025-26.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025%E2%80%9326+UEFA+Champions+League&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:02:56Z,8b76a8fe3e26b668501c705d66f52e5ae8d1e014d05a5c181bfb8baa21217182
 wikipedia/mls_2025.json,https://en.wikipedia.org/w/api.php?action=parse&page=2025+Major+League+Soccer+season&prop=wikitext&redirects=1&format=json&formatversion=2,2026-10-26T07:03:01Z,77f82b635efa342306741c1af3a896716cc82dc9c51d6124b4507b74aa0fddc5

@@ -1,11 +1,11 @@
-"""Télécharge les données brutes dans data/brut/ et note leur provenance.
+"""Télécharge les données brutes dans data/ et note leur provenance.
 
 Lancé par l'Action « Collecter les données » (onglet Actions, bouton « Run workflow »).
 Chaque fichier téléchargé est enregistré tel quel, et une ligne est ajoutée dans
-data/brut/provenance.csv : fichier, URL, date de téléchargement, empreinte SHA-256.
+data/provenance.csv : fichier, URL, date de téléchargement, empreinte SHA-256.
 
 Les fichiers FBref ne sont pas téléchargés ici (le site bloque les robots) :
-ils sont déposés à la main dans data/brut/fbref/ (voir docs/sources.md).
+ils sont déposés à la main dans data/fbref/ (voir docs/sources.md).
 """
 
 import csv
@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
-DOSSIER = RACINE / "data" / "brut"
+DOSSIER = RACINE / "data"
 PROVENANCE = DOSSIER / "provenance.csv"
 USER_AGENT = "ballon-dor-2026/2.0 (projet personnel ; https://github.com/badis-ar/ballon-dor-2026)"
 
@@ -29,7 +29,6 @@ OPENFOOTBALL = "https://raw.githubusercontent.com/openfootball"
 PAGES_WIKIPEDIA = {
     "ballon_dor_2026": "2026 Ballon d'Or",
     "cdm_2026": "2026 FIFA World Cup",
-    "ldc_2025-26": "2025–26 UEFA Champions League",
     # Championnats et coupes nationales des clubs des nommés
     "angleterre_2025-26": "2025–26 Premier League",
     "espagne_2025-26": "2025–26 La Liga",
@@ -55,11 +54,6 @@ for annee in range(1996, 2026):
 FICHIERS = {
     "openfootball/cdm_2026.json": f"{OPENFOOTBALL}/worldcup.json/master/2026/worldcup.json",
     "openfootball/ldc_2025-26.txt": f"{OPENFOOTBALL}/champions-league/master/2025-26/cl.txt",
-    "openfootball/angleterre_2025-26.json": f"{OPENFOOTBALL}/football.json/master/2025-26/en.1.json",
-    "openfootball/espagne_2025-26.json": f"{OPENFOOTBALL}/football.json/master/2025-26/es.1.json",
-    "openfootball/allemagne_2025-26.json": f"{OPENFOOTBALL}/football.json/master/2025-26/de.1.json",
-    "openfootball/italie_2025-26.json": f"{OPENFOOTBALL}/football.json/master/2025-26/it.1.json",
-    "openfootball/france_2025-26.json": f"{OPENFOOTBALL}/football.json/master/2025-26/fr.1.json",
     "cotes/polymarket.json": "https://gamma-api.polymarket.com/events?slug=ballon-dor-winner-2026",
     "cotes/kalshi.json": "https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXBALLONDOR&limit=200",
 }

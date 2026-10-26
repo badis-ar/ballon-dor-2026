@@ -1,10 +1,11 @@
-"""Transforme les fichiers bruts de data/brut/ en tableaux propres, avec une source par valeur.
+"""Transforme les fichiers téléchargés (data/) en tableaux propres, avec une source par valeur.
 
-Sorties :
-  data/nommes_2026.csv   les 30 nommés (nom, nation, poste, club)
-  data/valeurs_2026.csv  une ligne par valeur : joueur, donnée, valeur, source, URL
-  data/historique.csv    top 5 de chaque édition 1996-2025 (classement et points)
-  data/cotes_2026.csv    probabilités des marchés de prédiction
+Sorties, dans site/donnees/ (publiées avec la page) :
+  nommes_2026.csv   les 30 nommés (nom, nation, poste, club)
+  valeurs_2026.csv  une ligne par valeur : joueur, donnée, valeur, source, URL
+  historique.csv    top 5 de chaque édition 1996-2025 (classement et points)
+  cotes_2026.csv    probabilités des marchés de prédiction
+  controles.json    fichiers FBref présents et joueurs introuvables
 
 Règle : une valeur sans source n'est pas écrite. Une donnée absente reste absente.
 """
@@ -17,16 +18,16 @@ from pathlib import Path
 import wikitexte as wt
 
 RACINE = Path(__file__).resolve().parent.parent
-BRUT = RACINE / "data" / "brut"
-SORTIE = RACINE / "data"
+BRUT = RACINE / "data"
+SORTIE = RACINE / "site" / "donnees"
 
 URL_OPENFOOTBALL_CDM = "https://github.com/openfootball/worldcup.json/blob/master/2026/worldcup.json"
 URL_OPENFOOTBALL_LDC = "https://github.com/openfootball/champions-league/blob/master/2025-26/cl.txt"
-URL_HISTORIQUE = "https://github.com/badis-ar/ballon-dor-2026/blob/main/data/historique.csv"
+URL_HISTORIQUE = "https://badis-ar.github.io/ballon-dor-2026/donnees/historique.csv"
 URL_POLYMARKET = "https://polymarket.com/event/ballon-dor-winner-2026"
 URL_KALSHI = "https://kalshi.com/markets/kxballondor"
 
-# Championnats et coupes nationales (fichiers de data/brut/wikipedia/).
+# Championnats et coupes nationales (fichiers de data/wikipedia/).
 CHAMPIONNATS = ["angleterre_2025-26", "espagne_2025-26", "allemagne_2025-26", "italie_2025-26",
                 "france_2025-26", "arabie_2025-26", "mls_2025"]
 COUPE_DU_PAYS = {"angleterre_2025-26": "coupe_angleterre_2025-26", "espagne_2025-26": "coupe_espagne_2025-26",
@@ -37,7 +38,7 @@ COUPE_DU_PAYS = {"angleterre_2025-26": "coupe_angleterre_2025-26", "espagne_2025
 # Noms de clubs différents entre Wikipédia et openfootball.
 ALIAS_OPENFOOTBALL = {"Bayern Munich": "FC Bayern München", "Inter Milan": "FC Internazionale Milano"}
 
-# Fichiers FBref déposés à la main (voir docs/sources.md) : fichier -> préfixe des données.
+# Fichiers FBref déposés à la main dans data/fbref/ (voir docs/sources.md) : fichier -> préfixe des données.
 FICHIERS_FBREF = {
     "fbref_ligues_2025-26.csv": "champ",
     "fbref_mls_2025.csv": "champ",
@@ -70,7 +71,7 @@ def cible_lien(cellule):
 
 
 def date_telechargement(fichier):
-    """Date de téléchargement notée dans data/brut/provenance.csv."""
+    """Date de téléchargement notée dans data/provenance.csv."""
     with open(BRUT / "provenance.csv", encoding="utf-8") as f:
         for l in csv.DictReader(f):
             if l["fichier"] == fichier:
@@ -276,6 +277,7 @@ def lire_fbref(chemin):
 # --- Assemblage ------------------------------------------------------------------
 
 def main():
+    SORTIE.mkdir(parents=True, exist_ok=True)
     liste = nommes()
     valeurs = []
 
@@ -320,21 +322,22 @@ def main():
         podiums = [h for h in histo if h["rang"] <= 3 and meme_joueur(j["joueur"], h["joueur"])]
         points = sum(2 if h["rang"] == 1 else 1 for h in podiums)
         detail = ", ".join(f"{h['annee']} : {h['rang']}e" for h in podiums)
-        ajouter(j["joueur"], "podiums_points", points, "Wikipédia (data/historique.csv)",
+        ajouter(j["joueur"], "podiums_points", points, "Wikipédia (historique.csv)",
                 URL_HISTORIQUE, detail)
 
     # FBref, si les fichiers ont été déposés
-    absents_fbref = {}
+    trouves_fbref, prefixes_deposes = set(), set()
     for fichier, prefixe in FICHIERS_FBREF.items():
         chemin = BRUT / "fbref" / fichier
         if not chemin.exists():
             continue
         lignes = lire_fbref(chemin)
+        prefixes_deposes.add(prefixe)
         for j in liste:
             trouves = [l for l in lignes if wt.sans_accents(l["joueur"]) == wt.sans_accents(j["joueur"])]
             if not trouves:
-                absents_fbref.setdefault(fichier, []).append(j["joueur"])
                 continue
+            trouves_fbref.add((prefixe, j["joueur"]))
             for donnee in ("buts", "passes", "minutes"):
                 total = sum(int(l[donnee] or 0) for l in trouves)
                 ajouter(j["joueur"], f"{prefixe}_{donnee}", total, f"FBref ({fichier})", URL_FBREF[fichier])
@@ -367,7 +370,10 @@ def main():
     (SORTIE / "controles.json").write_text(json.dumps({
         "nommes": len(liste),
         "fbref_deposes": sorted(f for f in FICHIERS_FBREF if (BRUT / "fbref" / f).exists()),
-        "fbref_joueurs_non_trouves": absents_fbref,
+        # Joueurs absents de tous les fichiers déposés pour une compétition (ex. aucun fichier
+        # de championnat ne contient ce nom) : à vérifier, l'orthographe peut différer.
+        "fbref_joueurs_non_trouves": {p: [j["joueur"] for j in liste if (p, j["joueur"]) not in trouves_fbref]
+                                      for p in sorted(prefixes_deposes)},
         "editions_historique": sorted({h["annee"] for h in histo}),
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{len(liste)} nommés, {len(valeurs)} valeurs sourcées, {len(histo)} lignes d'historique, {len(cotes)} cotes")
