@@ -2,6 +2,7 @@ fichier,url,telecharge_le,sha256
 cotes/kalshi.json,https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXBALLONDOR&limit=200,2026-10-26T07:03:26Z,d75bf3a89c2f3ef5a449dd3176babafb0ba08b34343d07813a590a3d78912791
 cotes/polymarket.json,https://gamma-api.polymarket.com/events?slug=ballon-dor-winner-2026,2026-10-26T07:03:26Z,c38a33576607bf6ca8d3622da44dbe8dfe6121a84663bac72ecd1bbfaccb8230
 fbref/fbref_cdm_2026.csv,https://fbref.com/en/comps/1/stats/World-Cup-Stats,2026-10-26T07:42:43Z,c70325cd85b3cba2bffeaadb9a9789b5e534b8e59a490ab95240633e05c6fca5
+fbref/fbref_ldc_2025-26.csv,https://fbref.com/en/comps/8/2025-2026/stats/2025-2026-Champions-League-Stats,2026-10-26T07:59:20Z,cc36abc971f3a9fa38abce327e306d9914baa0ccfdc2961d9a7b0de5ce4e496a
 fbref/fbref_ligues_2025-26.csv,https://fbref.com/en/comps/Big5/2025-2026/stats/players/2025-2026-Big-5-European-Leagues-Stats,2026-10-26T07:22:24Z,9e22f086d68dbfa9e7b1a25414856da8da5f254c8d0123240dc5ed6f4a815463
 fbref/fbref_mls_2025.csv,https://fbref.com/en/comps/22/2025/stats/2025-Major-League-Soccer-Stats,2026-10-26T07:42:43Z,e1502ac3e9558aadbeab93e8d4d513fdba3bb37677905010ff64af55e974b661
 fbref/fbref_saudi_2025-26.csv,https://fbref.com/en/comps/70/2025-2026/stats/2025-2026-Saudi-Pro-League-Stats,2026-10-26T07:42:43Z,fe4341513ed238e770e70f496967f16722964ce2ed62c2798ce207ad08320a0d
