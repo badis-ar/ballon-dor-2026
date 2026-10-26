@@ -35,19 +35,41 @@ def lire_config():
         config = yaml.safe_load((RACINE / "config" / "poids.yaml").read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
         erreur(f"config/poids.yaml est mal écrit : {e}")
-    temperature = config.pop("temperature", None)
+    temperature = config.get("temperature")
     if not isinstance(temperature, (int, float)) or temperature <= 0:
         erreur("config/poids.yaml : « temperature » doit être un nombre positif.")
-    for critere, valeur in config.items():
-        if critere not in modele.CRITERES:
-            erreur(f"config/poids.yaml : critère inconnu « {critere} » (possibles : {', '.join(modele.CRITERES)}).")
-        if not isinstance(valeur, (int, float)) or valeur < 0:
-            erreur(f"config/poids.yaml : le poids de « {critere} » doit être un nombre positif.")
-    return config, temperature
+    methode = config.get("methode")
+    if methode not in modele.METHODES:
+        erreur(f"config/poids.yaml : « methode » doit valoir {' ou '.join(modele.METHODES)}.")
+    poids = {}
+    for m, criteres in modele.METHODES.items():
+        poids[m] = config.get(m) or {}
+        for critere, valeur in poids[m].items():
+            if critere not in criteres:
+                erreur(f"config/poids.yaml, méthode {m} : critère inconnu « {critere} » "
+                       f"(possibles : {', '.join(criteres)}).")
+            if not isinstance(valeur, (int, float)) or valeur < 0:
+                erreur(f"config/poids.yaml : le poids de « {critere} » doit être un nombre positif.")
+    return methode, poids, temperature
+
+
+def appliquer(nommes, valeurs, methode, poids_config, temperature):
+    """Notes et probabilités d'une méthode : {joueur: {notes, note, proba}}, éléments utilisés, poids."""
+    dispo = modele.elements_disponibles(valeurs, methode)
+    poids = modele.poids_effectifs(poids_config, dispo, methode)
+    res = {}
+    for j in nommes:
+        notes = modele.notes_joueur(valeurs[j["joueur"]], dispo, methode)
+        res[j["joueur"]] = {"notes": notes, "note": modele.note_finale(notes, poids)}
+    probas = modele.softmax([res[j["joueur"]]["note"] for j in nommes], temperature)
+    for j, p in zip(nommes, probas):
+        res[j["joueur"]]["proba"] = p
+    return res, dispo, poids
 
 
 def main():
-    poids_config, temperature = lire_config()
+    methode, poids_config, temperature = lire_config()
+    autre = next(m for m in modele.METHODES if m != methode)
     nommes = lire_csv("nommes_2026.csv")
 
     # Valeurs sourcées : {joueur: {donnée: valeur}} et {joueur: {donnée: ligne source}}
@@ -59,13 +81,11 @@ def main():
     valeurs = {j["joueur"]: valeurs[j["joueur"]] for j in nommes}
     modele.completer_absents(valeurs)
 
-    dispo = modele.elements_disponibles(valeurs)
-    poids = modele.poids_effectifs(poids_config, dispo)
+    resultats = {m: appliquer(nommes, valeurs, m, poids_config[m], temperature) for m in modele.METHODES}
+    res, dispo, poids = resultats[methode]
     for j in nommes:
-        j["notes"] = modele.notes_joueur(valeurs[j["joueur"]], dispo)
-        j["note"] = modele.note_finale(j["notes"], poids)
-    for j, p in zip(nommes, modele.softmax([j["note"] for j in nommes], temperature)):
-        j["proba"] = p
+        j.update(res[j["joueur"]])
+        j["proba_autre"] = resultats[autre][0][j["joueur"]]["proba"]
     nommes.sort(key=lambda j: -j["proba"])
 
     cotes = defaultdict(dict)
@@ -75,20 +95,23 @@ def main():
         provenance = list(csv.DictReader(f))
 
     SITE.mkdir(exist_ok=True)
-    html = page.generer(nommes, valeurs, sources, dispo, poids_config, poids, temperature,
+    methodes = {m: {"dispo": r[1], "poids": r[2], "poids_config": poids_config[m]} for m, r in resultats.items()}
+    html = page.generer(nommes, valeurs, sources, methode, methodes, temperature,
                         cotes, lire_csv("historique.csv"), provenance)
     (SITE / "index.html").write_text(html, encoding="utf-8")
 
     with open(DONNEES / "resultats.csv", "w", newline="", encoding="utf-8") as f:
         ecrivain = csv.writer(f)
-        ecrivain.writerow(["rang", "joueur", "club", "probabilite_pct", "note_sur_100"] + list(poids))
+        ecrivain.writerow(["rang", "joueur", "club", f"probabilite_pct_{methode}", "note_sur_100"]
+                          + list(poids) + [f"probabilite_pct_{autre}"])
         for rang, j in enumerate(nommes, start=1):
             ecrivain.writerow([rang, j["joueur"], j["club"], round(100 * j["proba"], 2), round(j["note"], 1)]
-                              + [round(j["notes"][c], 3) for c in poids])
+                              + [round(j["notes"][c], 3) for c in poids] + [round(100 * j["proba_autre"], 2)])
 
-    print("Critères utilisés : " + ", ".join(f"{c} {100 * p:.0f} %" for c, p in poids.items()))
+    print(f"Méthode {methode}. Critères utilisés : " + ", ".join(f"{c} {100 * p:.0f} %" for c, p in poids.items()))
     for rang, j in enumerate(nommes[:5], start=1):
-        print(f"{rang}. {j['joueur']:<24} {100 * j['proba']:5.1f} %  (note {j['note']:.1f})")
+        print(f"{rang}. {j['joueur']:<24} {100 * j['proba']:5.1f} %  (note {j['note']:.1f}, "
+              f"méthode {autre} : {100 * j['proba_autre']:.1f} %)")
 
 
 if __name__ == "__main__":

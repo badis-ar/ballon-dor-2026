@@ -9,9 +9,17 @@ TXT_STADE = {"V": "Vainqueur", "F": "Finale", "DF": "Demi-finale", "QF": "Quart"
 TXT_STADE_LDC = dict(TXT_STADE, P="Phase de ligue")
 TXT_PRIX = {"ballon_or": "Ballon d'or", "ballon_argent": "Ballon d'argent", "ballon_bronze": "Ballon de bronze",
             "soulier_or": "Soulier d'or", "autre": "Autre prix", "": ""}
+TXT_METHODE = {"chiffres": "statistiques individuelles", "criteres": "par compétition"}
 TXT_CRITERE = {"coupe_du_monde": "Coupe du monde 2026", "saison_club": "Saison de club 2025-26",
-               "ligue_des_champions": "Ligue des champions 2025-26", "prestige": "Palmarès au Ballon d'or"}
+               "ligue_des_champions": "Ligue des champions 2025-26", "prestige": "Palmarès au Ballon d'or",
+               "stats_saison": "Statistiques de la saison 2025-26", "cdm_individuel": "Coupe du monde : performances",
+               "cdm_parcours": "Coupe du monde : parcours de la sélection", "titres_club": "Titres du club 2025-26"}
 TXT_ELEMENT = {
+    "stats_saison": {"buts": "buts (championnat + LDC)", "passes": "passes décisives (championnat + LDC)",
+                     "ga_90": "buts et passes par 90 minutes", "notes_match": "notes de match"},
+    "cdm_individuel": {"buts": "buts", "passes": "passes décisives", "prix": "prix individuels du tournoi"},
+    "cdm_parcours": {"parcours": "dernier tour atteint"},
+    "titres_club": {"titre": "titre de champion", "coupe": "coupe nationale", "ldc": "parcours en LDC"},
     "coupe_du_monde": {"parcours": "parcours de la sélection", "buts": "buts", "passes": "passes décisives",
                        "prix": "prix individuels du tournoi"},
     "saison_club": {"titre": "titre de champion", "coupe": "coupe nationale",
@@ -29,6 +37,7 @@ COLONNES = [
     ("ldc_stade", "Parcours", "Ligue des champions", lambda v: TXT_STADE_LDC[v]),
     ("ldc_buts", "Buts", "Ligue des champions", str),
     ("ldc_passes", "Passes", "Ligue des champions", str),
+    ("ldc_minutes", "Minutes", "Ligue des champions", lambda v: f"{v:,}".replace(",", "\u202f")),
     ("champ_titre", "Champion", "Championnat", lambda v: "oui" if v else "non"),
     ("coupe_nat", "Coupe", "Championnat", lambda v: "oui" if v else "non"),
     ("champ_buts", "Buts", "Championnat", str),
@@ -56,7 +65,7 @@ def cellule(joueur, donnee, mise_en_forme, valeurs, sources):
     return f'<td><a href="{escape(src["url"])}" title="{escape(titre)}">{texte}</a></td>'
 
 
-def bloc_classement(joueurs, cotes):
+def bloc_classement(joueurs, cotes, autre):
     sources_cotes = sorted(cotes)
     p_max = joueurs[0]["proba"]
     entete = "".join(f'<th class="num">{escape(s.split(" (")[0])}</th>' for s in sources_cotes)
@@ -73,11 +82,13 @@ def bloc_classement(joueurs, cotes):
           <td><span class="nom">{escape(j['joueur'])}</span><span class="sous">{escape(j['club'])} · {escape(j['nation'])}</span></td>
           <td class="barre-cellule"><span class="piste"><span class="barre" style="width:{100 * j['proba'] / p_max:.1f}%"></span></span>
             <span class="num valeur">{pct(j['proba'])}</span></td>
+          <td class="num autre">{pct(j['proba_autre'])}</td>
           {''.join(cells)}
         </tr>""")
     return f"""
     <table class="classement">
-      <thead><tr><th class="num">#</th><th>Joueur</th><th>Modèle</th>{entete}</tr></thead>
+      <thead><tr><th class="num">#</th><th>Joueur</th><th>Modèle</th>
+        <th class="num" title="Même données, méthode {TXT_METHODE[autre]}">Autre méthode</th>{entete}</tr></thead>
       <tbody>{''.join(lignes)}</tbody>
     </table>"""
 
@@ -101,12 +112,14 @@ def bloc_donnees(joueurs, valeurs, sources):
     </table>"""
 
 
-def bloc_methode(dispo, poids_config, poids):
-    from modele import ELEMENTS
+def bloc_methode(methode, info):
+    from modele import METHODES
+    elements_methode = METHODES[methode]
+    dispo, poids_config, poids = info["dispo"], info["poids_config"], info["poids"]
     lignes = []
-    for critere in ELEMENTS:
+    for critere in elements_methode:
         utilises = dispo.get(critere, {})
-        ecartes = [e for e in ELEMENTS[critere] if e not in utilises]
+        ecartes = [e for e in elements_methode[critere] if e not in utilises]
         txt_utilises = ", ".join(f"{TXT_ELEMENT[critere][e]} ({round(100 * p)} %)" for e, p in utilises.items()) or "aucun"
         txt_ecartes = ", ".join(TXT_ELEMENT[critere][e] for e in ecartes) or "aucun"
         applique = pct(poids[critere]) if critere in poids else "0 %"
@@ -197,6 +210,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 0 16px 56px; }
 header { padding: 40px 0 8px; border-bottom: 1px solid var(--bord); margin-bottom: 8px; }
 h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.01em; }
 h2 { font-size: 1.15rem; margin: 40px 0 6px; font-weight: 650; }
+h3 { font-size: 1rem; margin: 22px 0 4px; font-weight: 600; }
+.autre { color: var(--texte-2); }
 p { margin: 0 0 10px; max-width: 72ch; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -232,23 +247,25 @@ code { font-size: .9em; background: var(--piste); padding: 1px 4px; border-radiu
 footer { color: var(--texte-3); font-size: .85rem; border-top: 1px solid var(--bord); margin-top: 48px; padding-top: 14px; }
 @media (max-width: 640px) {
   h1 { font-size: 1.5rem; }
-  .classement th:nth-child(n+4), .classement td:nth-child(n+4) { display: none; }
+  .classement th:nth-child(n+5), .classement td:nth-child(n+5) { display: none; }
   .barre-cellule { width: auto; }
   .piste { width: 56px; }
 }
 """
 
 
-def generer(joueurs, valeurs, sources, dispo, poids_config, poids, temperature, cotes, historique, provenance):
+def generer(joueurs, valeurs, sources, methode, methodes, temperature, cotes, historique, provenance):
+    from modele import METHODES
+    autre = next(m for m in methodes if m != methode)
     dates = sorted(p["telecharge_le"] for p in provenance)
     date_collecte = dates[-1][:16].replace("T", " à ") + " UTC" if dates else "date inconnue"
-    from modele import ELEMENTS
-    ecartes = [TXT_ELEMENT[c][e] for c in ELEMENTS for e in ELEMENTS[c] if e not in dispo.get(c, {})]
+    dispo = methodes[methode]["dispo"]
+    ecartes = [TXT_ELEMENT[c][e] for c in METHODES[methode] for e in METHODES[methode][c]
+               if e not in dispo.get(c, {}) and e != "notes_match"]
     note_ecartes = ""
     if ecartes:
-        note_ecartes = (f'<p class="note">Données incomplètes. Ces éléments ne sont pas encore disponibles pour les '
-                        f'30 joueurs et ne comptent pour personne : {escape(", ".join(ecartes))}. '
-                        f'Ils viendront des tableaux FBref.</p>')
+        note_ecartes = (f'<p class="note">Données incomplètes. Ces éléments ne sont pas disponibles pour les '
+                        f'30 joueurs et ne comptent pour personne : {escape(", ".join(ecartes))}.</p>')
     j1 = joueurs[0]
     return f"""<!doctype html>
 <html lang="fr">
@@ -269,10 +286,12 @@ def generer(joueurs, valeurs, sources, dispo, poids_config, poids, temperature, 
 
   <section>
     <h2>Classement</h2>
-    <p>En tête : {escape(j1['joueur'])}, {pct(j1['proba'])}. Les colonnes Polymarket et Kalshi donnent, pour comparaison,
-      la probabilité implicite des marchés de prédiction au moment de la collecte.</p>
+    <p>Méthode {TXT_METHODE[methode]}. En tête : {escape(j1['joueur'])}, {pct(j1['proba'])}.
+      La colonne « Autre méthode » donne le résultat de la méthode {TXT_METHODE[autre]} avec les mêmes données.
+      Polymarket et Kalshi donnent, pour comparaison, la probabilité implicite des marchés de prédiction
+      au moment de la collecte.</p>
     {note_ecartes}
-    <div class="cadre">{bloc_classement(joueurs, cotes)}</div>
+    <div class="cadre">{bloc_classement(joueurs, cotes, autre)}</div>
   </section>
 
   <section>
@@ -284,11 +303,17 @@ def generer(joueurs, valeurs, sources, dispo, poids_config, poids, temperature, 
 
   <section>
     <h2>Méthode</h2>
-    <p>Chaque critère est noté de 0 à 100, puis les critères sont pondérés. Un élément manquant chez un seul
+    <p>Deux méthodes utilisent les mêmes données. La méthode « statistiques individuelles » note d'abord les buts
+      et passes de la saison, championnat et LDC réunis, puis sépare à la Coupe du monde les performances du joueur
+      et le parcours de sa sélection. La méthode « par compétition » fait un critère par compétition.
+      Dans les deux cas, chaque critère est noté de 0 à 100, puis les critères sont pondérés. Un élément manquant chez un seul
       joueur est écarté pour tous, et son poids est réparti entre les autres éléments du même critère.
       Les notes sont ensuite converties en probabilités (fonction softmax, température {str(temperature).replace(".", ",")}).
       La température est réglée à la main : elle n'est pas encore calibrée sur les éditions passées.</p>
-    <div class="cadre">{bloc_methode(dispo, poids_config, poids)}</div>
+    <h3>Méthode {TXT_METHODE[methode]} (classement principal)</h3>
+    <div class="cadre">{bloc_methode(methode, methodes[methode])}</div>
+    <h3>Méthode {TXT_METHODE[autre]} (comparaison)</h3>
+    <div class="cadre">{bloc_methode(autre, methodes[autre])}</div>
     <p class="sous">Les notes de match ne sont pas utilisées : aucune source gratuite ne permet de les réutiliser.
       Les poids se règlent dans <a href="{URL_DEPOT}/blob/main/config/poids.yaml"><code>config/poids.yaml</code></a>.</p>
   </section>

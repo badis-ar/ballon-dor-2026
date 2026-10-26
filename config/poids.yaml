@@ -1,13 +1,27 @@
 # Réglages du modèle. Modifiez un chiffre sur GitHub (icône crayon) puis validez :
 # la page se reconstruit en une ou deux minutes.
 
-# Poids des critères. Ils sont remis à l'échelle, le total n'a pas besoin de faire 100.
-# Mettre 0 retire un critère.
-coupe_du_monde: 35
-saison_club: 30
-ligue_des_champions: 20
-prestige: 5
+# Méthode affichée en premier : « chiffres » ou « criteres ».
+# L'autre est calculée aussi et affichée pour comparaison.
+methode: chiffres
 
 # Écart entre les probabilités : plus la valeur est petite, plus le premier se détache.
 # Réglée à la main, pas encore calibrée sur les éditions passées.
 temperature: 5
+
+# Poids des critères (remis à l'échelle, le total n'a pas besoin de faire 100 ; 0 retire un critère).
+
+# Méthode « chiffres » : statistiques individuelles d'abord.
+chiffres:
+  stats_saison: 40      # buts, passes, buts+passes par 90 min (championnat + LDC réunis)
+  cdm_individuel: 25    # buts, passes et prix individuels à la Coupe du monde
+  cdm_parcours: 15      # parcours de la sélection à la Coupe du monde
+  titres_club: 15       # champion, coupe nationale, parcours en LDC
+  prestige: 5           # podiums des éditions précédentes
+
+# Méthode « criteres » : un critère par compétition.
+criteres:
+  coupe_du_monde: 35
+  saison_club: 30
+  ligue_des_champions: 20
+  prestige: 5
