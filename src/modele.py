@@ -51,7 +51,7 @@ def corriger_niveau(valeurs, correction):
 def noter_maximums(valeurs):
     """Ajoute à chaque joueur le meilleur total parmi les nommés (buts, passes, buts+passes par 90 min),
     si la donnée est connue pour tous. Les stats de la saison sont rapportées à ce meilleur total, sans plafond."""
-    for nom, calcul, besoins in (("buts", buts_saison, ["champ_buts_corr", "ldc_buts"]),
+    for nom, calcul, besoins in (("buts", buts_saison, ["champ_buts_corr", "ldc_buts", "autres_buts"]),
                                  ("passes", passes_saison, ["champ_passes_corr", "ldc_passes"]),
                                  ("ga_90", ga_par_90, ["champ_buts_corr", "ldc_buts", "champ_passes_corr",
                                                        "ldc_passes", "champ_minutes", "ldc_minutes"])):
@@ -62,7 +62,8 @@ def noter_maximums(valeurs):
 
 
 def buts_saison(v):
-    return v["champ_buts_corr"] + v["ldc_buts"]
+    """Buts en club sur toute la saison : championnat (corrigé), LDC et autres compétitions."""
+    return v["champ_buts_corr"] + v["ldc_buts"] + v["autres_buts"]
 
 
 def passes_saison(v):
@@ -70,7 +71,9 @@ def passes_saison(v):
 
 
 def ga_par_90(v):
-    return (buts_saison(v) + passes_saison(v)) * 90 / max(v["champ_minutes"] + v["ldc_minutes"], 1)
+    """Championnat et LDC seulement : les minutes jouées en coupe ne sont pas connues."""
+    return ((v["champ_buts_corr"] + v["ldc_buts"] + passes_saison(v)) * 90
+            / max(v["champ_minutes"] + v["ldc_minutes"], 1))
 
 
 # Pour chaque méthode et chaque critère : élément -> (poids dans le critère, données nécessaires, calcul).

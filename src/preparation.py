@@ -257,6 +257,83 @@ def championnat_du_club(club_page):
     return meilleur
 
 
+# --- Saisons des clubs (Wikipédia) : buts dans les autres compétitions ---------------
+
+# Club (tel qu'écrit dans la liste des nommés) -> (page de saison, titre de la section, colonnes).
+# Colonnes : une lettre par nombre lu après le nom du joueur, dans l'ordre du tableau.
+#   L = championnat, U = Ligue des champions (déjà lus dans FBref, servent de contrôle),
+#   C = autre compétition de club comptée (coupes, supercoupes, autres coupes continentales),
+#   X = ignoré (matchs joués, ou Coupe du monde des clubs 2025, jouée avant août 2025).
+# « liste_buteurs » : le tableau ne liste que les buteurs, un joueur absent a donc 0 but.
+SAISONS = {
+    "Real Madrid": ("saison_real_madrid_2025-26", "===Goals===", "LCUC", True),
+    "Barcelona": ("saison_barcelone_2025-26", "===Goalscorers===", "LCCU", True),
+    "Chelsea": ("saison_chelsea_2025-26", "===Goalscorers===", "LCCU", True),
+    "Paris Saint-Germain": ("saison_psg_2025-26", "===Appearances and goals===", "XLXCXCXUXCXC", False),
+    "Bayern Munich": ("saison_bayern_2025-26", "===Goalscorers===", "LCCU", True),
+    "Manchester United": ("saison_manchester_united_2025-26", "==Squad statistics==", "XLXCXC", False),
+    "Arsenal": ("saison_arsenal_2025-26", "===Goals===", "LCCU", True),
+    "Manchester City": ("saison_manchester_city_2025-26", "===Goalscorers===", "LCCU", True),
+    "Inter Milan": ("saison_inter_2025-26", "===Goalscorers===", "LCCU", True),
+    "Al Nassr": ("saison_al_nassr_2025-26", "===Goalscorers===", "LCCC", True),
+    "Al-Qadsiah": ("saison_al_qadsiah_2025-26", "===Goalscorers===", "LCC", True),
+    "Inter Miami": ("saison_inter_miami_2025", "=== Goalscorers ===", "LCCXC", True),
+}
+NOMBRE = re.compile(r"^(\d+(\+\d+)?(\(\d+\))?|—|-)$")
+
+
+def section(texte, titre):
+    """Texte d'une section, de son titre jusqu'au titre suivant."""
+    i = texte.find("\n" + titre)
+    if i < 0:
+        return None
+    fin = texte.find("\n==", i + len(titre) + 1)
+    return texte[i:fin if fin > 0 else None]
+
+
+def nombres_apres(texte, fin_nom):
+    """Nombres de la rangée qui suit le nom du joueur (jusqu'à la rangée suivante)."""
+    reste = texte[fin_nom:]
+    if reste.lstrip("]").startswith("|") and "{{Efs" in texte:  # rangée dans un modèle {{Efs player|...}}
+        reste = reste[:reste.find("}}")]
+    else:
+        coupe = [k for k in (reste.find("\n|-"), reste.find("\n|}")) if k >= 0]
+        reste = reste[:min(coupe)] if coupe else reste
+        reste = re.sub(r"\[\[[^\]]*\]\]|\{\{[^{}]*\}\}", "", reste)
+    reste = re.sub(r"<ref[^>]*/>|<ref.*?</ref>|<sup>.*?</sup>", "", reste, flags=re.S)
+    reste = re.sub(r"(rowspan|colspan|style|align)\s*=\s*\"?[^|\"]*\"?\s*\|(?!\|)", "", reste)
+    jetons = [c.strip().strip("'").strip() for c in re.split(r"\|\||!!|\||!|\n", reste)]
+    return [c for c in jetons if NOMBRE.match(c)]
+
+
+def buts_saison_club(joueur, club):
+    """{championnat, ldc, autres, detail} lus sur la page de saison du club, ou None."""
+    if club not in SAISONS:
+        return None
+    nom, titre, colonnes, liste_buteurs = SAISONS[club]
+    p = page(nom)
+    texte = section(p[1], titre) if p else None
+    if not texte:
+        return None
+    for m in re.finditer(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]|\{\{sortname\|([^|}]+)\|([^|}]+)[^}]*\}\}", texte):
+        affiche = (m.group(2) or m.group(1)) if m.group(1) else f"{m.group(3)} {m.group(4)}"
+        if not meme_joueur(joueur, affiche.strip()):
+            continue
+        nombres = nombres_apres(texte, m.end())
+        if len(nombres) < len(colonnes):
+            return None
+        valeurs = {"L": 0, "U": 0, "C": 0}
+        for lettre, n in zip(colonnes, nombres):
+            if lettre != "X":
+                valeurs[lettre] += 0 if n in ("—", "-") else int(n)
+        return {"championnat": valeurs["L"], "ldc": valeurs["U"], "autres": valeurs["C"], "url": p[2],
+                "detail": f"{p[0]}, section {titre.strip('= ')}"}
+    if liste_buteurs:
+        return {"championnat": 0, "ldc": 0, "autres": 0, "url": p[2],
+                "detail": f"{p[0]} : absent de la liste des buteurs"}
+    return None
+
+
 # --- FBref (fichiers déposés à la main) ------------------------------------------
 
 def lire_fbref(chemin):
@@ -265,18 +342,29 @@ def lire_fbref(chemin):
     i_entete = next(i for i, l in enumerate(lignes) if "Player" in l and "Min" in l)
     entete = lignes[i_entete]
     i_j, i_min, i_b, i_p = (entete.index(c) for c in ("Player", "Min", "Gls", "Ast"))  # 1re occurrence = totaux
+    i_club = entete.index("Squad") if "Squad" in entete else None  # absent de l'export Coupe du monde
     sortie = []
     for l in lignes[i_entete + 1:]:
         if len(l) <= max(i_j, i_min, i_b, i_p) or l[i_j] in ("", "Player"):
             continue
         nombres = [l[i].replace(",", "") for i in (i_min, i_b, i_p)]
-        sortie.append({"joueur": l[i_j], "minutes": nombres[0], "buts": nombres[1], "passes": nombres[2]})
+        club = re.sub(r"^[a-z]{2,3} ", "", l[i_club]) if i_club is not None else None  # « de Bayern Munich »
+        sortie.append({"joueur": l[i_j], "club": club, "minutes": nombres[0], "buts": nombres[1],
+                       "passes": nombres[2]})
     return sortie
 
 
-def lignes_fbref_du_joueur(nom, lignes):
-    """Lignes FBref d'un joueur : même nom, sinon un seul joueur dont le nom complet commence
-    par celui-ci (« Fabián Ruiz » -> « Fabián Ruiz Peña »). Plusieurs lignes = changement de club."""
+# Nom du club dans FBref, quand il diffère de la liste des nommés.
+CLUB_FBREF = {"Paris Saint-Germain": "Paris SG", "Manchester United": "Manchester Utd",
+              "Inter Milan": "Inter", "Al Nassr": "Al-Nassr"}
+
+
+def lignes_fbref_du_joueur(nom, club, lignes):
+    """Lignes FBref d'un joueur de ce club : même nom, sinon un seul joueur dont le nom complet commence
+    par celui-ci (« Fabián Ruiz » -> « Fabián Ruiz Peña »). Le club écarte les homonymes
+    (deux « Vitinha », deux « Luis Díaz »)."""
+    if club:
+        lignes = [l for l in lignes if l["club"] is None or l["club"] == CLUB_FBREF.get(club, club)]
     cle = wt.sans_accents(nom)
     exactes = [l for l in lignes if wt.sans_accents(l["joueur"]) == cle]
     if exactes:
@@ -293,6 +381,8 @@ def main():
     valeurs = []
 
     def ajouter(joueur, donnee, valeur, source, url, detail=""):
+        if any(v["joueur"] == joueur and v["donnee"] == donnee for v in valeurs):
+            raise SystemExit(f"{joueur} : « {donnee} » trouvé dans deux sources, vérifier les homonymes.")
         valeurs.append({"joueur": joueur, "donnee": donnee, "valeur": valeur, "source": source,
                         "url": url, "detail": detail})
 
@@ -355,7 +445,8 @@ def main():
         lignes = lire_fbref(chemin)
         prefixes_deposes.add(prefixe)
         for j in liste:
-            trouves = lignes_fbref_du_joueur(j["joueur"], lignes)
+            # À la Coupe du monde, la colonne « Squad » est la sélection : pas de filtre par club.
+            trouves = lignes_fbref_du_joueur(j["joueur"], None if prefixe == "cdm" else j["club"], lignes)
             if not trouves:
                 continue
             trouves_fbref.add((prefixe, j["joueur"]))
@@ -364,6 +455,21 @@ def main():
                     continue  # déjà lus dans openfootball (les deux sources concordent)
                 total = sum(int(l[donnee] or 0) for l in trouves)
                 ajouter(j["joueur"], f"{prefixe}_{donnee}", total, f"FBref ({fichier})", URL_FBREF[fichier])
+
+    # Buts dans les autres compétitions de club (coupes, supercoupes...), pages de saison Wikipédia.
+    # Le championnat et la LDC de ces pages servent de contrôle avec FBref.
+    ecarts_saisons, saisons_manquantes = [], []
+    lus = {(v["joueur"], v["donnee"]): v["valeur"] for v in valeurs}
+    for j in liste:
+        r = buts_saison_club(j["joueur"], j["club"])
+        if r is None:
+            saisons_manquantes.append(j["joueur"])
+            continue
+        ajouter(j["joueur"], "autres_buts", r["autres"], "Wikipédia", r["url"], r["detail"])
+        for cle, donnee in (("championnat", "champ_buts"), ("ldc", "ldc_buts")):
+            if "absent" not in r["detail"] and lus.get((j["joueur"], donnee), 0) != r[cle]:
+                ecarts_saisons.append(f"{j['joueur']} : {donnee} FBref {lus.get((j['joueur'], donnee))}, "
+                                      f"Wikipédia {r[cle]}")
 
     # Cotes
     cotes = []
@@ -402,6 +508,8 @@ def main():
         "fbref_joueurs_non_trouves": {p: [j["joueur"] for j in liste if (p, j["joueur"]) not in trouves_fbref
                                           and stade_de(j["joueur"], p) != "ABS"]
                                       for p in sorted(prefixes_deposes)},
+        "saisons_clubs_manquantes": saisons_manquantes,
+        "saisons_clubs_ecarts_avec_fbref": ecarts_saisons,
         "editions_historique": sorted({h["annee"] for h in histo}),
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{len(liste)} nommés, {len(valeurs)} valeurs sourcées, {len(histo)} lignes d'historique, {len(cotes)} cotes")

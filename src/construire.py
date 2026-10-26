@@ -18,7 +18,7 @@ RACINE = Path(__file__).resolve().parent.parent
 DONNEES = RACINE / "site" / "donnees"
 SITE = RACINE / "site"
 NUMERIQUES = {"cdm_buts", "cdm_passes", "cdm_minutes", "ldc_buts", "ldc_passes", "ldc_minutes",
-              "champ_buts", "champ_passes", "champ_minutes", "champ_titre", "coupe_nat", "podiums_points", "champ_niveau"}
+              "champ_buts", "champ_passes", "champ_minutes", "champ_titre", "coupe_nat", "podiums_points", "champ_niveau", "autres_buts"}
 
 
 def erreur(message):

@@ -15,7 +15,7 @@ TXT_CRITERE = {"coupe_du_monde": "Coupe du monde 2026", "saison_club": "Saison d
                "stats_saison": "Statistiques de la saison 2025-26", "cdm_individuel": "Coupe du monde : performances",
                "cdm_parcours": "Coupe du monde : parcours de la sélection", "titres_club": "Titres du club 2025-26"}
 TXT_ELEMENT = {
-    "stats_saison": {"buts": "buts (championnat + LDC)", "passes": "passes décisives (championnat + LDC)",
+    "stats_saison": {"buts": "buts en club (championnat, LDC, coupes et autres compétitions)", "passes": "passes décisives (championnat + LDC)",
                      "ga_90": "buts et passes par 90 minutes", "notes_match": "notes de match"},
     "cdm_individuel": {"buts": "buts", "passes": "passes décisives", "prix": "prix individuels du tournoi"},
     "cdm_parcours": {"parcours": "dernier tour atteint"},
@@ -44,6 +44,7 @@ COLONNES = [
     ("champ_passes", "Passes", "Championnat", str),
     ("champ_minutes", "Minutes", "Championnat", lambda v: f"{v:,}".replace(",", " ")),
     ("champ_niveau", "Niveau Opta", "Championnat", lambda v: str(v).replace(".", ",")),
+    ("autres_buts", "Buts", "Coupes et autres", str),
     ("podiums_points", "Points", "Ballon d'or", str),
 ]
 
