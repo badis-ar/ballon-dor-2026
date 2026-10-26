@@ -1,0 +1,384 @@
+"""Transforme les fichiers bruts de data/brut/ en tableaux propres, avec une source par valeur.
+
+Sorties :
+  data/nommes_2026.csv   les 30 nommés (nom, nation, poste, club)
+  data/valeurs_2026.csv  une ligne par valeur : joueur, donnée, valeur, source, URL
+  data/historique.csv    top 5 de chaque édition 1996-2025 (classement et points)
+  data/cotes_2026.csv    probabilités des marchés de prédiction
+
+Règle : une valeur sans source n'est pas écrite. Une donnée absente reste absente.
+"""
+
+import csv
+import json
+import re
+from pathlib import Path
+
+import wikitexte as wt
+
+RACINE = Path(__file__).resolve().parent.parent
+BRUT = RACINE / "data" / "brut"
+SORTIE = RACINE / "data"
+
+URL_OPENFOOTBALL_CDM = "https://github.com/openfootball/worldcup.json/blob/master/2026/worldcup.json"
+URL_OPENFOOTBALL_LDC = "https://github.com/openfootball/champions-league/blob/master/2025-26/cl.txt"
+URL_HISTORIQUE = "https://github.com/badis-ar/ballon-dor-2026/blob/main/data/historique.csv"
+URL_POLYMARKET = "https://polymarket.com/event/ballon-dor-winner-2026"
+URL_KALSHI = "https://kalshi.com/markets/kxballondor"
+
+# Championnats et coupes nationales (fichiers de data/brut/wikipedia/).
+CHAMPIONNATS = ["angleterre_2025-26", "espagne_2025-26", "allemagne_2025-26", "italie_2025-26",
+                "france_2025-26", "arabie_2025-26", "mls_2025"]
+COUPE_DU_PAYS = {"angleterre_2025-26": "coupe_angleterre_2025-26", "espagne_2025-26": "coupe_espagne_2025-26",
+                 "allemagne_2025-26": "coupe_allemagne_2025-26", "italie_2025-26": "coupe_italie_2025-26",
+                 "france_2025-26": "coupe_france_2025-26", "arabie_2025-26": "coupe_arabie_2025-26",
+                 "mls_2025": "coupe_usa_2025"}
+
+# Noms de clubs différents entre Wikipédia et openfootball.
+ALIAS_OPENFOOTBALL = {"Bayern Munich": "FC Bayern München", "Inter Milan": "FC Internazionale Milano"}
+
+# Fichiers FBref déposés à la main (voir docs/sources.md) : fichier -> préfixe des données.
+FICHIERS_FBREF = {
+    "fbref_ligues_2025-26.csv": "champ",
+    "fbref_mls_2025.csv": "champ",
+    "fbref_saudi_2025-26.csv": "champ",
+    "fbref_ldc_2025-26.csv": "ldc",
+    "fbref_cdm_2026.csv": "cdm",
+}
+URL_FBREF = {
+    "fbref_ligues_2025-26.csv": "https://fbref.com/en/comps/Big5/2025-2026/stats/players/2025-2026-Big-5-European-Leagues-Stats",
+    "fbref_mls_2025.csv": "https://fbref.com/en/comps/22/2025/stats/2025-Major-League-Soccer-Stats",
+    "fbref_saudi_2025-26.csv": "https://fbref.com/en/comps/70/2025-2026/stats/2025-2026-Saudi-Pro-League-Stats",
+    "fbref_ldc_2025-26.csv": "https://fbref.com/en/comps/8/2025-2026/stats/2025-2026-Champions-League-Stats",
+    "fbref_cdm_2026.csv": "https://fbref.com/en/comps/1/stats/World-Cup-Stats",
+}
+
+
+def page(nom):
+    """(titre, wikitext, url) d'une page Wikipédia téléchargée, ou None si absente."""
+    chemin = BRUT / "wikipedia" / f"{nom}.json"
+    if not chemin.exists():
+        return None
+    titre, texte = wt.lire_page(chemin)
+    return titre, texte, wt.url_page(titre)
+
+
+def cible_lien(cellule):
+    """« [[Real Madrid CF|Real Madrid]] » -> « Real Madrid CF » (premier lien hors modèles)."""
+    m = re.search(r"\[\[([^\]|]+)", re.sub(r"\{\{[^{}]*\}\}", "", cellule))
+    return m.group(1).strip() if m else None
+
+
+def date_telechargement(fichier):
+    """Date de téléchargement notée dans data/brut/provenance.csv."""
+    with open(BRUT / "provenance.csv", encoding="utf-8") as f:
+        for l in csv.DictReader(f):
+            if l["fichier"] == fichier:
+                return l["telecharge_le"][:16].replace("T", " ") + " UTC"
+    return ""
+
+
+def lire_json(chemin):
+    return json.loads(chemin.read_text(encoding="utf-8"))
+
+
+# --- Les 30 nommés ---------------------------------------------------------------
+
+def nommes():
+    titre, texte, url = page("ballon_dor_2026")
+    for entetes, lignes in wt.tableaux(texte):
+        if "Player" in entetes and "Club" in entetes:
+            i_j, i_n, i_p, i_c = (entetes.index(c) for c in ("Player", "Nationality", "Position", "Club"))
+            joueurs = []
+            for l in lignes:
+                joueurs.append({
+                    "joueur": wt.premier_lien(l[i_j]),
+                    "nation": wt.nettoyer(l[i_n]),
+                    "poste": wt.nettoyer(l[i_p]) or wt.premier_lien(l[i_p]),
+                    "club": wt.nettoyer(l[i_c]),
+                    "club_page": cible_lien(l[i_c]),
+                    "source": url,
+                })
+            return joueurs
+    raise SystemExit("Tableau des nommés introuvable sur la page Wikipédia 2026.")
+
+
+# --- Historique ------------------------------------------------------------------
+
+def historique():
+    lignes_sortie = []
+    for chemin in sorted((BRUT / "wikipedia").glob("ballon_dor_[0-9][0-9][0-9][0-9].json")):
+        annee = int(chemin.stem[-4:])
+        if annee >= 2026:
+            continue
+        titre, texte = wt.lire_page(chemin)
+        trouves = {}
+        for entetes, lignes in wt.tableaux(texte):
+            if "Rank" not in entetes or "Player" not in entetes:
+                continue
+            i_j = entetes.index("Player")
+            i_pts = next((entetes.index(c) for c in ("Points", "Total", "Percent") if c in entetes), None)
+            for l in lignes:
+                m = re.match(r"^\s*(\d+)", wt.nettoyer(l[0]) if l else "")
+                if not m or len(l) <= i_j:
+                    continue
+                rang = int(m.group(1))
+                if rang <= 5 and rang not in trouves:
+                    points = wt.nettoyer(l[i_pts]) if i_pts is not None and len(l) > i_pts else ""
+                    trouves[rang] = (wt.premier_lien(l[i_j]), points)
+        for rang in sorted(trouves):
+            joueur, points = trouves[rang]
+            if joueur:
+                lignes_sortie.append({"annee": annee, "rang": rang, "joueur": joueur,
+                                      "points": points, "source": wt.url_page(titre)})
+    return lignes_sortie
+
+
+# --- Coupe du monde 2026 (openfootball + Wikipédia pour les prix) ---------------
+
+def stades_cdm(matchs):
+    """Dernier tour atteint par chaque sélection : V, F, DF, QF, HF, 16F, P."""
+    ordre = {"Round of 32": "16F", "Round of 16": "HF", "Quarter-final": "QF",
+             "Semi-final": "DF", "Match for third place": "DF"}
+    stades = {}
+    for m in matchs:
+        for equipe in (m["team1"], m["team2"]):
+            stades.setdefault(equipe, "P")
+            if m["round"] in ordre:
+                stades[equipe] = ordre[m["round"]]
+        if m["round"] == "Final":
+            s = m["score"]
+            final = s.get("p") or s.get("et") or s["ft"]
+            gagnant, perdant = (m["team1"], m["team2"]) if final[0] > final[1] else (m["team2"], m["team1"])
+            stades[gagnant], stades[perdant] = "V", "F"
+    return stades
+
+
+def buts_cdm(matchs):
+    """{(sélection, nom sans accents): buts}, sans les buts contre son camp."""
+    buts = {}
+    for m in matchs:
+        for cle, equipe in (("goals1", m["team1"]), ("goals2", m["team2"])):
+            for b in m.get(cle, []):
+                if not b.get("owngoal"):
+                    k = (equipe, wt.sans_accents(b["name"]))
+                    buts[k] = buts.get(k, 0) + 1
+    return buts
+
+
+def prix_cdm():
+    """{nom sans accents: code du meilleur prix} d'après le tableau « Awards » de Wikipédia."""
+    titre, texte, url = page("cdm_2026")
+    codes = {"Golden Ball": "ballon_or", "Silver Ball": "ballon_argent", "Bronze Ball": "ballon_bronze",
+             "Golden Boot": "soulier_or", "Silver Boot": "autre", "Bronze Boot": "autre",
+             "Golden Glove": "autre", "FIFA Young Player Award": "autre"}
+    rang = ["ballon_or", "ballon_argent", "soulier_or", "ballon_bronze", "autre"]
+    prix = {}
+    for entetes, lignes in wt.tableaux(texte):
+        if "Golden Ball" not in entetes:
+            continue
+        rangees = [entetes] + [[wt.nettoyer(c) for c in l] for l in lignes]
+        brutes = [None] + lignes
+        for i in range(0, len(rangees) - 1, 2):
+            for nom_prix, cellule in zip(rangees[i], brutes[i + 1]):
+                joueur = wt.premier_lien(cellule)
+                code = codes.get(nom_prix)
+                if joueur and code:
+                    k = wt.sans_accents(joueur)
+                    if k not in prix or rang.index(code) < rang.index(prix[k]):
+                        prix[k] = code
+    return prix, url
+
+
+def meme_joueur(nom, autre):
+    """Même nom complet, ou même nom de famille quand l'un des deux n'a qu'un mot de plus."""
+    a, b = wt.sans_accents(nom), wt.sans_accents(autre)
+    return a == b or (a.split()[-1] == b.split()[-1] and (a in b or b in a))
+
+
+# --- Ligue des champions 2025-26 (openfootball) ----------------------------------
+
+def stades_ldc():
+    """{nom openfootball du club: dernier tour atteint}."""
+    codes = {"League": "P", "Playoffs": "P", "Round of 16": "HF", "Quarterfinals": "QF",
+             "Semifinals": "DF", "Final": "F"}
+    stades, tour = {}, None
+    for ligne in (BRUT / "openfootball" / "ldc_2025-26.txt").read_text(encoding="utf-8").splitlines():
+        if ligne.startswith("▪"):
+            tour = next((c for t, c in codes.items() if t in ligne), tour)
+            continue
+        m = re.match(r"\s*(?:\d\d:\d\d\s+)?(.+?) \([A-Z]{3}\)\s+v (.+?) \([A-Z]{3}\)\s+(.*)$", ligne)
+        if m and tour:
+            for club in (m.group(1).strip(), m.group(2).strip()):
+                stades[club] = tour
+            if tour == "F":
+                score = m.group(3)
+                pen = re.match(r"(\d+)-(\d+) pen", score)
+                buts = pen or re.match(r"(\d+)-(\d+)", score)
+                g1, g2 = int(buts.group(1)), int(buts.group(2))
+                stades[m.group(1).strip() if g1 > g2 else m.group(2).strip()] = "V"
+    return stades
+
+
+def club_ldc(club, stades):
+    nom = ALIAS_OPENFOOTBALL.get(club, club)
+    candidats = [c for c in stades if wt.sans_accents(nom) in wt.sans_accents(c)]
+    return candidats[0] if len(candidats) == 1 else None
+
+
+# --- Titres nationaux (Wikipédia, infobox « winners ») ---------------------------
+
+def vainqueur(nom_page):
+    p = page(nom_page)
+    if not p:
+        return None, None
+    titre, texte, url = p
+    champ = wt.champ_infobox(texte, "winners") or wt.champ_infobox(texte, "mlscup") or wt.champ_infobox(texte, "champions")
+    return (cible_lien(champ) if champ else None), url
+
+
+def cle_club(nom):
+    """« Paris Saint-Germain F.C. » et « Paris Saint-Germain FC » -> même clé."""
+    mots = re.sub(r"[^a-z0-9 ]", " ", wt.sans_accents(nom).replace(".", "")).split()
+    return " ".join(m for m in mots if m not in ("fc", "cf", "afc", "sc"))
+
+
+def championnat_du_club(club_page):
+    """Page du championnat où le club apparaît le plus souvent (liste des équipes, résultats)."""
+    meilleur, compte_max = None, 0
+    for nom in CHAMPIONNATS:
+        p = page(nom)
+        if p:
+            cibles = re.findall(r"\[\[([^\]|#]+)", p[1])
+            compte = sum(cle_club(c) == cle_club(club_page) for c in cibles)
+            if compte > compte_max:
+                meilleur, compte_max = nom, compte
+    return meilleur
+
+
+# --- FBref (fichiers déposés à la main) ------------------------------------------
+
+def lire_fbref(chemin):
+    """Lit un export CSV FBref « Player Standard Stats ». Renvoie [{joueur, minutes, buts, passes}]."""
+    lignes = list(csv.reader(chemin.read_text(encoding="utf-8-sig").splitlines()))
+    i_entete = next(i for i, l in enumerate(lignes) if "Player" in l and "Min" in l)
+    entete = lignes[i_entete]
+    i_j, i_min, i_b, i_p = (entete.index(c) for c in ("Player", "Min", "Gls", "Ast"))  # 1re occurrence = totaux
+    sortie = []
+    for l in lignes[i_entete + 1:]:
+        if len(l) <= max(i_j, i_min, i_b, i_p) or l[i_j] in ("", "Player"):
+            continue
+        nombres = [l[i].replace(",", "") for i in (i_min, i_b, i_p)]
+        sortie.append({"joueur": l[i_j], "minutes": nombres[0], "buts": nombres[1], "passes": nombres[2]})
+    return sortie
+
+
+# --- Assemblage ------------------------------------------------------------------
+
+def main():
+    liste = nommes()
+    valeurs = []
+
+    def ajouter(joueur, donnee, valeur, source, url, detail=""):
+        valeurs.append({"joueur": joueur, "donnee": donnee, "valeur": valeur, "source": source,
+                        "url": url, "detail": detail})
+
+    # Coupe du monde
+    matchs = lire_json(BRUT / "openfootball" / "cdm_2026.json")["matches"]
+    stades, buts, (prix, url_prix) = stades_cdm(matchs), buts_cdm(matchs), prix_cdm()
+    for j in liste:
+        nation = j["nation"]
+        stade = stades.get(nation, "ABS")
+        ajouter(j["joueur"], "cdm_stade", stade, "openfootball", URL_OPENFOOTBALL_CDM)
+        if stade != "ABS":
+            total = sum(n for (equipe, nom), n in buts.items() if equipe == nation and meme_joueur(j["joueur"], nom))
+            ajouter(j["joueur"], "cdm_buts", total, "openfootball", URL_OPENFOOTBALL_CDM)
+        ajouter(j["joueur"], "cdm_prix", prix.get(wt.sans_accents(j["joueur"]), ""), "Wikipédia", url_prix)
+
+    # Ligue des champions
+    ldc = stades_ldc()
+    for j in liste:
+        club = club_ldc(j["club"], ldc)
+        ajouter(j["joueur"], "ldc_stade", ldc[club] if club else "ABS", "openfootball", URL_OPENFOOTBALL_LDC)
+
+    # Titres nationaux
+    for j in liste:
+        championnat = championnat_du_club(j["club_page"])
+        if not championnat:
+            continue
+        gagnant, url = vainqueur(championnat)
+        if gagnant:
+            ajouter(j["joueur"], "champ_titre", int(cle_club(gagnant) == cle_club(j["club_page"])), "Wikipédia", url)
+        coupe = COUPE_DU_PAYS.get(championnat)
+        gagnant, url = vainqueur(coupe) if coupe else (None, None)
+        if gagnant:
+            ajouter(j["joueur"], "coupe_nat", int(cle_club(gagnant) == cle_club(j["club_page"])), "Wikipédia", url)
+
+    # Prestige : podiums au Ballon d'or avant 2026
+    histo = historique()
+    for j in liste:
+        podiums = [h for h in histo if h["rang"] <= 3 and meme_joueur(j["joueur"], h["joueur"])]
+        points = sum(2 if h["rang"] == 1 else 1 for h in podiums)
+        detail = ", ".join(f"{h['annee']} : {h['rang']}e" for h in podiums)
+        ajouter(j["joueur"], "podiums_points", points, "Wikipédia (data/historique.csv)",
+                URL_HISTORIQUE, detail)
+
+    # FBref, si les fichiers ont été déposés
+    absents_fbref = {}
+    for fichier, prefixe in FICHIERS_FBREF.items():
+        chemin = BRUT / "fbref" / fichier
+        if not chemin.exists():
+            continue
+        lignes = lire_fbref(chemin)
+        for j in liste:
+            trouves = [l for l in lignes if wt.sans_accents(l["joueur"]) == wt.sans_accents(j["joueur"])]
+            if not trouves:
+                absents_fbref.setdefault(fichier, []).append(j["joueur"])
+                continue
+            for donnee in ("buts", "passes", "minutes"):
+                total = sum(int(l[donnee] or 0) for l in trouves)
+                ajouter(j["joueur"], f"{prefixe}_{donnee}", total, f"FBref ({fichier})", URL_FBREF[fichier])
+
+    # Cotes
+    cotes = []
+    poly = lire_json(BRUT / "cotes" / "polymarket.json")[0]["markets"]
+    for m in poly:
+        if m.get("closed") or "outcomePrices" not in m:
+            continue
+        prix_oui = float(json.loads(m["outcomePrices"])[0])
+        cotes.append({"joueur": m["groupItemTitle"], "source": "Polymarket (prix moyen)", "probabilite": prix_oui,
+                      "horodatage": m["updatedAt"][:16].replace("T", " ") + " UTC", "url": URL_POLYMARKET})
+    for m in lire_json(BRUT / "cotes" / "kalshi.json")["markets"]:
+        if m.get("status") != "active":
+            continue
+        # Kalshi ne date pas le dernier prix : on note l'heure du téléchargement.
+        cotes.append({"joueur": m["yes_sub_title"], "source": "Kalshi (dernier prix échangé)",
+                      "probabilite": float(m["last_price_dollars"]),
+                      "horodatage": date_telechargement("cotes/kalshi.json"), "url": URL_KALSHI})
+    for c in cotes:  # rattacher les noms des marchés à ceux de Wikipédia ; les non-nommés sont écartés
+        c["joueur"] = next((j["joueur"] for j in liste if meme_joueur(j["joueur"], c["joueur"])), None)
+    cotes = [c for c in cotes if c["joueur"]]
+
+    # Écriture
+    ecrire("nommes_2026.csv", [{k: j[k] for k in ("joueur", "nation", "poste", "club", "source")} for j in liste])
+    ecrire("valeurs_2026.csv", valeurs)
+    ecrire("historique.csv", histo)
+    ecrire("cotes_2026.csv", cotes)
+    (SORTIE / "controles.json").write_text(json.dumps({
+        "nommes": len(liste),
+        "fbref_deposes": sorted(f for f in FICHIERS_FBREF if (BRUT / "fbref" / f).exists()),
+        "fbref_joueurs_non_trouves": absents_fbref,
+        "editions_historique": sorted({h["annee"] for h in histo}),
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"{len(liste)} nommés, {len(valeurs)} valeurs sourcées, {len(histo)} lignes d'historique, {len(cotes)} cotes")
+
+
+def ecrire(nom, lignes):
+    with open(SORTIE / nom, "w", newline="", encoding="utf-8") as f:
+        ecrivain = csv.DictWriter(f, fieldnames=list(lignes[0]))
+        ecrivain.writeheader()
+        ecrivain.writerows(lignes)
+
+
+if __name__ == "__main__":
+    main()

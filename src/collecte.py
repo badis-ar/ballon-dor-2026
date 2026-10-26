@@ -43,7 +43,8 @@ PAGES_WIKIPEDIA = {
     "coupe_allemagne_2025-26": "2025–26 DFB-Pokal",
     "coupe_italie_2025-26": "2025–26 Coppa Italia",
     "coupe_france_2025-26": "2025–26 Coupe de France",
-    "coupe_arabie_2025-26": "2025–26 King's Cup",
+    "coupe_arabie_2025-26": "2025–26 King's Cup (Saudi Arabia)",
+    "coupe_usa_2025": "2025 U.S. Open Cup",
 }
 # Une page par édition passée du Ballon d'or (pas d'édition en 2020).
 for annee in range(1996, 2026):
